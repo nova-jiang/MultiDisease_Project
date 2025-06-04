@@ -44,7 +44,7 @@ shap_values_all = []
 
 # Outer CV loop
 for fold, (train_idx, test_idx) in enumerate(outer_cv.split(X, y), 1):
-    print(f"\n🔁 Fold {fold}")
+    print(f"\nFold {fold}")
     X_train, X_test = X[train_idx], X[test_idx]
     y_train, y_test = y[train_idx], y[test_idx]
 
@@ -73,7 +73,7 @@ for fold, (train_idx, test_idx) in enumerate(outer_cv.split(X, y), 1):
 
 # Summary
 metrics_df = pd.DataFrame(all_metrics)
-print("\n📊 Average Metrics Across Folds:")
+print("\nAverage Metrics Across Folds:")
 print(metrics_df.mean())
 
 # Confusion Matrix
