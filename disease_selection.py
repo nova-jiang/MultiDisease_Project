@@ -13,7 +13,7 @@ metadata["phenotype"] = metadata["phenotype"].str.lower().str.strip()
 phenotype_counts = metadata["phenotype"].value_counts()
 
 # Print the full list
-print("🔍 Full phenotype sample counts:\n")
+print("Full phenotype sample counts:\n")
 print(phenotype_counts)
 
 # Save to CSV just in case
