@@ -183,4 +183,5 @@ Contenders:
 - Intestinal: Crohn's
 - Mental: Depression
 - Liver-related: Liver cirrhosis
+- Autoimmune: Autoimmune diseases
 """
