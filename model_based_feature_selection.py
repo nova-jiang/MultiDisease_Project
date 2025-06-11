@@ -67,7 +67,7 @@ metadata_df = metadata_df.loc[common_ids]
 # Auto-select top 4 disease phenotypes (excluding health)
 disease_only = metadata_df[metadata_df["phenotype"] != "health"]
 top_diseases = disease_only["phenotype"].value_counts().head(4).index.tolist()
-print("✅ Selected disease phenotypes:", top_diseases)
+print("Selected disease phenotypes:", top_diseases)
 
 target_diseases = ["health"] + top_diseases
 metadata_df = metadata_df[metadata_df["phenotype"].isin(target_diseases)]
