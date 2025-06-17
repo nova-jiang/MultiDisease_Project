@@ -1,0 +1,23 @@
+{
+  "class_distribution": {
+    "Autoimmune": 240,
+    "Healthy": 240,
+    "Intestinal": 240,
+    "Liver": 240,
+    "Metabolic": 240
+  },
+  "avg_neighbor_distances": {
+    "Autoimmune": 0.43006575123688184,
+    "Healthy": 0.39120039118344535,
+    "Intestinal": 0.3277362636474162,
+    "Liver": 0.2819016828373323,
+    "Metabolic": 0.4248954096030641
+  },
+  "neighbor_homogeneity": {
+    "Autoimmune": 0.37604166666666666,
+    "Healthy": 0.37881944444444443,
+    "Intestinal": 0.4657986111111111,
+    "Liver": 0.6925347222222222,
+    "Metabolic": 0.38263888888888886
+  }
+}
