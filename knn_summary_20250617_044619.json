@@ -1,0 +1,23 @@
+{
+  "model_type": "KNN",
+  "timestamp": "20250617_044619",
+  "best_parameters": {
+    "algorithm": "auto",
+    "metric": "cosine",
+    "n_neighbors": 25,
+    "p": 1,
+    "weights": "distance"
+  },
+  "cv_performance": {
+    "accuracy": "0.6383 \u00b1 0.0148",
+    "f1_macro": "0.6326 \u00b1 0.0150"
+  },
+  "test_performance": {
+    "accuracy": 0.6125,
+    "f1_macro": 0.6057903258418393
+  },
+  "optimal_k": 22,
+  "selected_k": 25,
+  "n_features": 30,
+  "n_samples": 1200.0
+}

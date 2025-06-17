@@ -1,0 +1,20 @@
+{
+  "model_type": "SVM",
+  "timestamp": "20250617_044558",
+  "best_parameters": {
+    "C": 1,
+    "degree": 2,
+    "gamma": "auto",
+    "kernel": "rbf"
+  },
+  "cv_performance": {
+    "accuracy": "0.6525 \u00b1 0.0248",
+    "f1_macro": "0.6478 \u00b1 0.0264"
+  },
+  "test_performance": {
+    "accuracy": 0.625,
+    "f1_macro": 0.6189264244172559
+  },
+  "n_features": 30,
+  "n_samples": 1200.0
+}
