@@ -173,6 +173,7 @@ class LassoModelTraining:
             json.dump(summary, f, indent=2)
         print(f"  Summary report saved to: {summary_filename}")
 
+        # Confusion Matrix Plot
         cm = np.array(test_results['confusion_matrix'])
         plt.figure(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
@@ -182,7 +183,54 @@ class LassoModelTraining:
         plt.xlabel('Predicted')
         plt.ylabel('Actual')
         plt.tight_layout()
-        plt.savefig(f"lasso_confusion_matrix_{timestamp}.png")
+        plt.savefig("lasso_confusion_matrix.png")
+        plt.close()
+
+        # Combined Model Analysis Plot
+        plt.figure(figsize=(12, 10))
+
+
+        # CV Performance
+        metrics = ['accuracy', 'precision_macro', 'recall_macro', 'f1_macro']
+        means = [cv_results[m]['test_mean'] for m in metrics]
+        stds = [cv_results[m]['test_std'] for m in metrics]
+        plt.subplot(2, 2, 1)
+        plt.bar(metrics, means, yerr=stds, capsize=5, color='skyblue')
+        plt.title('Cross-Validation Performance')
+        plt.ylim(0, 1)
+
+        # Confusion Matrix
+        plt.subplot(2, 2, 2)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                    xticklabels=self.label_encoder.classes_,
+                    yticklabels=self.label_encoder.classes_)
+        plt.title('Test Set Confusion Matrix')
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+
+        # Per-Class F1 Scores
+        plt.subplot(2, 2, 3)
+        f1_scores = [test_results['classification_report'][label]['f1-score'] for label in self.label_encoder.classes_]
+        plt.bar(self.label_encoder.classes_, f1_scores, color='lightgreen')
+        plt.title('Per-Class F1-Score')
+        plt.ylabel('F1-Score')
+        plt.ylim(0, 1)
+
+        # Feature Importance (non-zero coefficients)
+        plt.subplot(2, 2, 4)
+        try:
+            importances = np.mean(np.abs(self.best_model.coef_), axis=0)
+            indices = np.argsort(importances)[::-1][:10]
+            top_features = [self.feature_names[i] for i in indices]
+            top_importances = importances[indices]
+            plt.barh(top_features[::-1], top_importances[::-1], color='salmon')
+            plt.title('Top 10 Feature Importances')
+        except:
+            plt.text(0.5, 0.5, 'Feature importance not available', ha='center')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])  # Leaves space at the top for the title
+        plt.figtext(0.5, 0.97, 'Lasso Model Analysis', ha='center', fontsize=16)
+        plt.savefig("lasso_model_analysis.png")
         plt.close()
 
     def run_complete_pipeline(self, X_filtered, y, selected_features):

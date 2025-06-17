@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import xgboost as xgb
 import pickle
 import json
 import matplotlib.pyplot as plt
@@ -9,6 +8,7 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV, train_test_sp
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from datetime import datetime
+from xgboost import XGBClassifier
 
 class XGBoostModelTraining:
     def __init__(self, cv_folds=5, test_size=0.2, random_state=42):
@@ -39,11 +39,10 @@ class XGBoostModelTraining:
         param_grid = {
             'n_estimators': [50, 100, 150],
             'max_depth': [3, 5, 7],
-            'learning_rate': [0.01, 0.1, 0.2],
-            'subsample': [0.8, 1.0],
+            'learning_rate': [0.01, 0.1, 0.2]
         }
 
-        model = xgb.XGBClassifier(objective='multi:softprob', num_class=5, use_label_encoder=False, eval_metric='mlogloss')
+        model = XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', random_state=self.random_state)
         cv = StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=self.random_state)
         grid_search = GridSearchCV(model, param_grid, cv=cv, scoring='accuracy', n_jobs=-1, verbose=1)
         grid_search.fit(X, y)
@@ -103,7 +102,7 @@ class XGBoostModelTraining:
         precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='macro')
 
         class_report = classification_report(
-            y_test, y_pred, 
+            y_test, y_pred,
             target_names=self.label_encoder.classes_,
             output_dict=True
         )
@@ -155,38 +154,82 @@ class XGBoostModelTraining:
             json.dump(test_results, f, indent=2)
         print(f"  Test results saved to: {test_filename}")
 
-        summary = {
-            'model_type': 'XGBoost',
-            'timestamp': timestamp,
-            'best_parameters': self.best_params,
-            'cv_performance': {
-                'accuracy': f"{cv_results['accuracy']['test_mean']:.4f} ± {cv_results['accuracy']['test_std']:.4f}",
-                'f1_macro': f"{cv_results['f1_macro']['test_mean']:.4f} ± {cv_results['f1_macro']['test_std']:.4f}"
-            },
-            'test_performance': {
-                'accuracy': test_results['accuracy'],
-                'f1_macro': test_results['f1_macro']
-            },
-            'n_features': len(self.feature_names),
-            'n_samples': len(test_results['test_true_labels']) / self.test_size
-        }
-
         summary_filename = f'xgboost_summary_{timestamp}.json'
         with open(summary_filename, 'w') as f:
-            json.dump(summary, f, indent=2)
+            json.dump({
+                'model_type': 'XGBoost',
+                'timestamp': timestamp,
+                'best_parameters': self.best_params,
+                'cv_performance': {
+                    'accuracy': f"{cv_results['accuracy']['test_mean']:.4f} ± {cv_results['accuracy']['test_std']:.4f}",
+                    'f1_macro': f"{cv_results['f1_macro']['test_mean']:.4f} ± {cv_results['f1_macro']['test_std']:.4f}"
+                },
+                'test_performance': {
+                    'accuracy': test_results['accuracy'],
+                    'f1_macro': test_results['f1_macro']
+                },
+                'n_features': len(self.feature_names),
+                'n_samples': len(test_results['test_true_labels']) / self.test_size
+            }, f, indent=2)
         print(f"  Summary report saved to: {summary_filename}")
 
+        # Confusion Matrix Plot
         cm = np.array(test_results['confusion_matrix'])
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges',
+        sns.heatmap(cm, annot=True, fmt='d', cmap='YlGnBu',
                     xticklabels=self.label_encoder.classes_,
                     yticklabels=self.label_encoder.classes_)
         plt.title('XGBoost Confusion Matrix')
         plt.xlabel('Predicted')
         plt.ylabel('Actual')
         plt.tight_layout()
-        plt.savefig(f"xgboost_confusion_matrix_{timestamp}.png")
+        plt.savefig("xgboost_confusion_matrix.png")
         plt.close()
+
+        # Combined Model Analysis Plot
+        plt.figure(figsize=(12, 10))
+
+
+        # CV Performance
+        metrics = ['accuracy', 'precision_macro', 'recall_macro', 'f1_macro']
+        means = [cv_results[m]['test_mean'] for m in metrics]
+        stds = [cv_results[m]['test_std'] for m in metrics]
+        plt.subplot(2, 2, 1)
+        plt.bar(metrics, means, yerr=stds, capsize=5, color='skyblue')
+        plt.title('Cross-Validation Performance')
+        plt.ylim(0, 1)
+
+        # Confusion Matrix
+        plt.subplot(2, 2, 2)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                    xticklabels=self.label_encoder.classes_,
+                    yticklabels=self.label_encoder.classes_)
+        plt.title('Test Set Confusion Matrix')
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+
+        # Per-Class F1 Scores
+        plt.subplot(2, 2, 3)
+        f1_scores = [test_results['classification_report'][label]['f1-score'] for label in self.label_encoder.classes_]
+        plt.bar(self.label_encoder.classes_, f1_scores, color='lightgreen')
+        plt.title('Per-Class F1-Score')
+        plt.ylabel('F1-Score')
+        plt.ylim(0, 1)
+
+        # Feature Importances
+        plt.subplot(2, 2, 4)
+        importances = self.best_model.feature_importances_
+        indices = np.argsort(importances)[-10:]
+        top_features = [self.feature_names[i] for i in indices]
+        top_importances = importances[indices]
+        plt.barh(top_features, top_importances, color='salmon')
+        plt.title('Top 10 Feature Importances')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])  # Leaves space at the top for the title
+        plt.figtext(0.5, 0.97, 'XGBoost Model Analysis', ha='center', fontsize=16)
+        plt.savefig("xgboost_model_analysis.png")
+        plt.close()
+
 
     def run_complete_pipeline(self, X_filtered, y, selected_features):
         print("="*60)
