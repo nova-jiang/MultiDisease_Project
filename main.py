@@ -18,6 +18,8 @@ from first_feature_selection import BiologicalPrefiltering
 from SVM_feature_selection import SVMFeatureSelection
 from SVM_model import SVMModelTraining
 from kNN_model import KNNModelTraining
+from XGBoost_model import XGBoostModelTraining
+from lasso_model import LassoModelTraining
 
 def main():
     """
@@ -122,6 +124,53 @@ def main():
         
         print(f"✅ KNN training completed successfully!")
         print(f"   KNN test accuracy: {knn_results['test_results']['accuracy']:.4f}")
+
+        # =====================================================================
+        # STEP 3C: XGBOOST MODEL TRAINING
+        # =====================================================================
+        print("\n🎯 STEP 3C: XGBOOST MODEL TRAINING")
+        print("-" * 60)
+
+        # Initialize XGBoost trainer
+        xgb_trainer = XGBoostModelTraining(
+            cv_folds=5,
+            test_size=0.2,
+            random_state=RANDOM_STATE
+        )
+
+        # Run XGBoost training
+        print("Training XGBoost model...")
+        xgb_results = xgb_trainer.run_complete_pipeline(
+            X_filtered, y, selected_features_final
+        )
+
+        print(f"✅ XGBoost training completed successfully!")
+        print(f"   XGBoost test accuracy: {xgb_results['test_results']['accuracy']:.4f}")
+
+        # =====================================================================
+        # STEP 3D: LASSO MODEL TRAINING
+        # =====================================================================
+        print("\n🧪 STEP 3D: LASSO MODEL TRAINING")
+        print("-" * 60)
+
+        # Initialize Lasso trainer
+        lasso_trainer = LassoModelTraining(
+            cv_folds=5,
+            test_size=0.2,
+            random_state=RANDOM_STATE
+        )
+
+        # Run Lasso training
+        print("Training Lasso model...")
+        lasso_results = lasso_trainer.run_complete_pipeline(
+            X_filtered, y, selected_features_final
+        )
+
+        print(f"✅ Lasso training completed successfully!")
+        print(f"   Lasso test accuracy: {lasso_results['test_results']['accuracy']:.4f}")
+
+
+
         
         # =====================================================================
         # PIPELINE SUMMARY
@@ -160,7 +209,20 @@ def main():
                 "Test accuracy": f"{knn_results['test_results']['accuracy']:.4f}",
                 "Test F1-macro": f"{knn_results['test_results']['f1_macro']:.4f}",
                 "Optimal k": knn_results['k_analysis']['optimal_k']
+            },
+            "Step 3C - XGBoost Results": {
+                "Best parameters": xgb_results['best_params'],
+                "CV accuracy": f"{xgb_results['cv_results']['accuracy']['test_mean']:.4f} ± {xgb_results['cv_results']['accuracy']['test_std']:.4f}",
+                "Test accuracy": f"{xgb_results['test_results']['accuracy']:.4f}",
+                "Test F1-macro": f"{xgb_results['test_results']['f1_macro']:.4f}"
+            },
+            "Step 3D - Lasso Results": {
+                "Best parameters": lasso_results['best_params'],
+                "CV accuracy": f"{lasso_results['cv_results']['accuracy']['test_mean']:.4f} ± {lasso_results['cv_results']['accuracy']['test_std']:.4f}",
+                "Test accuracy": f"{lasso_results['test_results']['accuracy']:.4f}",
+                "Test F1-macro": f"{lasso_results['test_results']['f1_macro']:.4f}"
             }
+
         }
         
         # Print summary
@@ -173,11 +235,17 @@ def main():
         # Determine best model
         svm_accuracy = svm_results['test_results']['accuracy']
         knn_accuracy = knn_results['test_results']['accuracy']
-        best_model = "SVM" if svm_accuracy > knn_accuracy else "KNN"
-        best_accuracy = max(svm_accuracy, knn_accuracy)
-        
-        print(f"\n🏆 BEST PERFORMING MODEL: {best_model}")
-        print(f"   Best test accuracy: {best_accuracy:.4f}")
+        xgb_accuracy = xgb_results['test_results']['accuracy']
+        lasso_accuracy = lasso_results['test_results']['accuracy']
+
+        best_model = max(
+            [("SVM", svm_accuracy), ("KNN", knn_accuracy), ("XGBoost", xgb_accuracy), ("Lasso", lasso_accuracy)],
+            key=lambda x: x[1]
+        )
+
+        print(f"\n🏆 BEST PERFORMING MODEL: {best_model[0]}")
+        print(f"   Best test accuracy: {best_model[1]:.4f}")
+
         
         # Save pipeline summary
         import json
