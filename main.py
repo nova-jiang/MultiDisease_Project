@@ -1,344 +1,445 @@
 """
-Complete Multi-Disease Classification Pipeline
-==========================================
-
-This is the main function to run the complete pipeline for microbiome-based multi-disease classification:
-1. Step 1: Biological Statistical Pre-filtering
-2. Step 2: SVM-Assisted Feature Selection
-3. Step 3a: SVM Model Training
-4. Step 3b: KNN Model Training
+Main Controller for Multi-Class Microbiome Disease Classification
 """
 
+import os
+import sys
+import json
 import pandas as pd
 import numpy as np
+from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
+os.environ['PYTHONWARNINGS'] = 'ignore'
+warnings.simplefilter('ignore')
 
 from first_feature_selection import BiologicalPrefiltering
-from SVM_feature_selection import SVMFeatureSelection
-from SVM_model import SVMModelTraining
-from kNN_model import KNNModelTraining
-from XGBoost_model import XGBoostModelTraining
-from lasso_model import LassoModelTraining
+from step2_feature_selection import run_step2
+from SVM_model import run_svm_nested_cv
+from kNN_model import run_knn_nested_cv
+
+# =============================================================================
+# CONFIGURATION SECTION
+# =============================================================================
+
+DATA_PATH = "gmrepo_cleaned_dataset.csv" 
+BASE_RESULTS_DIR = "results" 
+
+# Pipeline control switches - Set to True/False to enable/disable steps
+RUN_CONFIG = {
+    # Step 1: Biological pre-filtering
+    'step1_biological_filtering': True,
+    
+    # Step 2: Model-informed feature selection
+    'step2_feature_selection': True,
+    
+    # Step 3: Individual ML models (nested cross-validation)
+    'step3_svm': True,                    # SVM with nested CV
+    'step3_knn': True,                    # KNN with nested CV
+    'step3_logistic_regression': False,   # TODO: Implement
+    'step3_random_forest': False,         # TODO: Implement
+    'step3_xgboost': False,              # TODO: Implement
+    'step3_naive_bayes': False,          # TODO: Implement
+    'step3_neural_network': False,       # TODO: Implement
+    
+    # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
+    'step4_cross_validation': False,     # Integrated into nested CV
+    'step4_final_evaluation': True,      # Final comparison and analysis
+    
+    # Additional options
+    'save_intermediate_results': True,
+    'generate_visualizations': True,
+    'verbose': True
+}
+
+# Step 1 parameters
+STEP1_PARAMS = {
+    'min_prevalence': 0.03,         # 3% of samples
+    'fdr_threshold': 0.1,           # FDR < 0.1
+    'effect_size_threshold': 0.005  # eta-squared >= 0.005
+}
+
+# Step 2 parameters
+STEP2_PARAMS = {
+    'xgb_top_k': 164,              # Number of features to select
+    'cv_folds': 5,                 # Cross-validation folds
+    'random_state': 42,            # Random seed
+    'phases': ['XGBoost_ranking', 'RFECV']  # Two-phase approach
+}
+
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
+
+def create_directory_structure():
+    """Create the directory structure for results"""
+    directories = [
+        BASE_RESULTS_DIR,
+        f"{BASE_RESULTS_DIR}/step1_biological_filtering",
+        f"{BASE_RESULTS_DIR}/step2_feature_selection",
+        f"{BASE_RESULTS_DIR}/step3_models",
+        f"{BASE_RESULTS_DIR}/step4_evaluation",
+        f"{BASE_RESULTS_DIR}/final_results"
+    ]
+    
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
+    
+    print(f"Created directory structure in: {BASE_RESULTS_DIR}")
+
+def log_pipeline_start():
+    """Log the start of the pipeline"""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    log_info = {
+        'pipeline_start_time': timestamp,
+        'configuration': RUN_CONFIG,
+        'step1_parameters': STEP1_PARAMS,
+        'step2_parameters': STEP2_PARAMS,
+        'data_path': DATA_PATH
+    }
+    
+    with open(f"{BASE_RESULTS_DIR}/pipeline_log.json", 'w') as f:
+        json.dump(log_info, f, indent=2)
+    
+    print("="*80)
+    print("MULTI-CLASS MICROBIOME DISEASE CLASSIFICATION PIPELINE")
+    print("="*80)
+    print(f"Start time: {timestamp}")
+    print(f"Data path: {DATA_PATH}")
+    print(f"Results directory: {BASE_RESULTS_DIR}")
+    print("="*80)
+
+def save_pipeline_state(step_name, data=None, features=None, results=None):
+    """Save the current state of the pipeline"""
+    if not RUN_CONFIG['save_intermediate_results']:
+        return
+    
+    state = {
+        'step': step_name,
+        'timestamp': datetime.now().isoformat(),
+        'data_shape': data.shape if data is not None else None,
+        'n_features': len(features) if features is not None else None,
+        'features': features if features is not None else None
+    }
+    
+    if results is not None:
+        state['results_summary'] = results
+    
+    # Save state
+    state_file = f"{BASE_RESULTS_DIR}/{step_name}_state.json"
+    with open(state_file, 'w') as f:
+        json.dump(state, f, indent=2)
+    
+    print(f"Pipeline state saved: {state_file}")
+
+# =============================================================================
+# PIPELINE STEPS
+# =============================================================================
+
+def run_step_1(data_path):
+    """
+    Step 1: Biological pre-filtering
+    """
+    if not RUN_CONFIG['step1_biological_filtering']:
+        print("Step 1: SKIPPED (disabled in configuration)")
+        return None, None, None, None
+    
+    print("\n" + "="*60)
+    print("STEP 1: BIOLOGICAL PRE-FILTERING")
+    print("="*60)
+
+    
+    bio_filter = BiologicalPrefiltering(
+        min_prevalence=STEP1_PARAMS['min_prevalence'],
+        fdr_threshold=STEP1_PARAMS['fdr_threshold'],
+        effect_size_threshold=STEP1_PARAMS['effect_size_threshold']
+    )
+    
+    # Run the pipeline
+    X_filtered, y, selected_features, results_df = bio_filter.run_complete_pipeline(data_path)
+    
+    save_pipeline_state('step1', X_filtered, selected_features, {
+        'n_original_features': len(results_df) if results_df is not None else 0,
+        'n_selected_features': len(selected_features),
+        'parameters_used': STEP1_PARAMS
+    })
+    
+    print(f"Step 1 completed: {len(selected_features)} features selected")
+    return X_filtered, y, selected_features, results_df
+
+def run_step_2(X_step1, y, features_step1):
+    """
+    Step 2: Model-informed feature selection (2-phase approach)
+    """
+    if not RUN_CONFIG['step2_feature_selection']:
+        print("Step 2: SKIPPED (disabled in configuration)")
+        return features_step1, None
+    
+    print("\n" + "="*60)
+    print("STEP 2: MODEL-INFORMED FEATURE SELECTION")
+    print("="*60)
+    
+    if len(features_step1) < 10:
+        print(f"WARNING: Only {len(features_step1)} features from Step 1. Consider relaxing Step 1 parameters.")
+        return features_step1, None
+    
+    # Run feature selection (now only 2 phases)
+    results_dir = f"{BASE_RESULTS_DIR}/step2_feature_selection"
+    selected_features, selector = run_step2(X_step1, y, results_dir)
+
+    save_pipeline_state('step2', X_step1[selected_features], selected_features, {
+        'n_input_features': len(features_step1),
+        'n_selected_features': len(selected_features),
+        'parameters_used': STEP2_PARAMS,
+        'phases_completed': ['Phase 1: XGBoost + Cumulative Analysis', 'Phase 2: RFECV']
+    })
+    
+    print(f"Step 2 completed: {len(selected_features)} features selected")
+    return selected_features, selector
+
+def run_step_3_models(X_final, y, final_features):
+    """
+    Step 3: Train individual ML models with nested cross-validation
+    """
+    print("\n" + "="*60)
+    print("STEP 3: MACHINE LEARNING MODELS (NESTED CV)")
+    print("="*60)
+    
+    # Get the final dataset
+    X_model_ready = X_final[final_features]
+    
+    models_to_run = []
+    if RUN_CONFIG['step3_svm']:
+        models_to_run.append('svm_nested_cv')
+    if RUN_CONFIG['step3_knn']:
+        models_to_run.append('knn_nested_cv')
+    if RUN_CONFIG['step3_logistic_regression']:
+        models_to_run.append('logistic_regression')
+    if RUN_CONFIG['step3_random_forest']:
+        models_to_run.append('random_forest')
+    if RUN_CONFIG['step3_xgboost']:
+        models_to_run.append('xgboost')
+    if RUN_CONFIG['step3_naive_bayes']:
+        models_to_run.append('naive_bayes')
+    if RUN_CONFIG['step3_neural_network']:
+        models_to_run.append('neural_network')
+    
+    if not models_to_run:
+        print("Step 3: No models enabled in configuration")
+        return {}
+    
+    print(f"Models to run: {models_to_run}")
+    
+    # Model results storage
+    model_results = {}
+    
+    for model_name in models_to_run:
+        print(f"\nRunning {model_name}...")
+        
+        try:
+            if model_name == 'svm_nested_cv':
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/svm_nested"
+                nested_results, classifier = run_svm_nested_cv(X_model_ready, y, results_dir)
+                
+                model_results[model_name] = {
+                    'status': 'completed',
+                    'type': 'nested_cross_validation',
+                    'performance': nested_results['overall_metrics'],
+                    'best_f1_macro': nested_results['overall_metrics']['f1_macro'],
+                    'results_dir': results_dir
+                }
+                
+            elif model_name == 'knn_nested_cv':
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/knn_nested"
+                nested_results, classifier = run_knn_nested_cv(X_model_ready, y, results_dir)
+                
+                model_results[model_name] = {
+                    'status': 'completed',
+                    'type': 'nested_cross_validation',
+                    'performance': nested_results['overall_metrics'],
+                    'best_f1_macro': nested_results['overall_metrics']['f1_macro'],
+                    'results_dir': results_dir
+                }
+                
+            else:
+                # Placeholder for other models (implement as needed)
+                model_results[model_name] = {
+                    'status': 'placeholder',
+                    'message': f'{model_name} script not yet implemented'
+                }
+                print(f"  {model_name}: Placeholder (implement step3_{model_name}.py)")
+                
+        except Exception as e:
+            print(f"  ERROR running {model_name}: {e}")
+            model_results[model_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+    
+    save_pipeline_state('step3', X_model_ready, final_features, {
+        'models_run': models_to_run,
+        'model_results': model_results,
+        'completed_models': [name for name, result in model_results.items() 
+                           if result['status'] == 'completed']
+    })
+    
+    print(f"\nStep 3 Summary:")
+    completed_models = [name for name, result in model_results.items() 
+                       if result['status'] == 'completed']
+    print(f"  Successfully completed: {len(completed_models)} models")
+    
+    if completed_models:
+        print(f"  Performance Summary (F1-macro):")
+        for model_name in completed_models:
+            f1_score = model_results[model_name]['best_f1_macro']
+            print(f"    {model_name}: {f1_score:.4f}")
+    
+    return model_results
+
+def run_step_4_evaluation(model_results):
+    """
+    Step 4: Cross-validation and final evaluation
+    """
+    print("\n" + "="*60)
+    print("STEP 4: EVALUATION AND CROSS-VALIDATION")
+    print("="*60)
+    
+    evaluation_results = {}
+    
+    if RUN_CONFIG['step4_cross_validation']:
+        print("Running cross-validation analysis...")
+        # Placeholder for cross-validation
+        evaluation_results['cross_validation'] = "Placeholder - implement cross-validation"
+    
+    if RUN_CONFIG['step4_final_evaluation']:
+        print("Running final evaluation...")
+        # Placeholder for final evaluation
+        evaluation_results['final_evaluation'] = "Placeholder - implement final evaluation"
+
+    save_pipeline_state('step4', results=evaluation_results)
+    
+    return evaluation_results
+
+# =============================================================================
+# MAIN PIPELINE
+# =============================================================================
 
 def main():
-    """
-    Run the complete multi-disease classification pipeline
-    """
-    print("="*80)
-    print("MULTI-DISEASE CLASSIFICATION PIPELINE")
-    print("Microbiome-based Disease Category Classification")
-    print("="*80)
+    if not os.path.exists(DATA_PATH):
+        print(f"ERROR: Data file not found: {DATA_PATH}")
+        print("Please update DATA_PATH in the configuration section.")
+        return
+
+    create_directory_structure()
     
-    # Configuration parameters
-    DATA_FILE = 'gmrepo_cleaned_dataset.csv'
-    RANDOM_STATE = 42
+    log_pipeline_start()
     
     try:
-        # =====================================================================
-        # STEP 1: BIOLOGICAL STATISTICAL PRE-FILTERING
-        # =====================================================================
-        print("\n🧬 STEP 1: BIOLOGICAL STATISTICAL PRE-FILTERING")
-        print("-" * 60)
+        # Step 1: Biological pre-filtering
+        X_step1, y, features_step1, results_step1 = run_step_1(DATA_PATH)
         
-        # Initialize biological pre-filtering
-        bio_filter = BiologicalPrefiltering(
-            min_prevalence=0.1,      # Keep features present in ≥10% of samples
-            fdr_threshold=0.05,      # FDR < 0.05
-            effect_size_threshold=0.01  # Minimum effect size
-        )
+        if X_step1 is None:
+            print("Step 1 was skipped or failed. Cannot proceed.")
+            return
         
-        # Run Step 1
-        print("Running biological pre-filtering...")
-        X_filtered, y, selected_features_step1, results_df_step1 = bio_filter.run_complete_pipeline(DATA_FILE)
+        # Step 2: Model-informed feature selection
+        features_step2, selector_step2 = run_step_2(X_step1, y, features_step1)
         
-        print(f"✅ Step 1 completed successfully!")
-        print(f"   Features after biological filtering: {len(selected_features_step1)}")
-        print(f"   Dataset shape: {X_filtered.shape}")
+        # Step 3: Machine learning models
+        model_results = run_step_3_models(X_step1, y, features_step2)
         
-        # =====================================================================
-        # STEP 2: SVM-ASSISTED FEATURE SELECTION
-        # =====================================================================
-        print("\n🎯 STEP 2: SVM-ASSISTED FEATURE SELECTION")
-        print("-" * 60)
+        # Step 4: Evaluation
+        evaluation_results = run_step_4_evaluation(model_results)
         
-        # Initialize SVM feature selection
-        svm_selector = SVMFeatureSelection(
-            C=1.0,                          # SVM regularization parameter
-            kernel='linear',                # Linear kernel for interpretability
-            max_features=50,                # Maximum features to consider
-            cv_folds=5,                     # 5-fold cross-validation
-            feature_selection_method='coef' # Use coefficient-based selection
-        )
-        
-        # Run Step 2
-        print("Running SVM-assisted feature selection...")
-        selected_features_final, feature_rankings, optimal_n = svm_selector.run_complete_pipeline(
-            X_filtered, y
-        )
-        
-        print(f"✅ Step 2 completed successfully!")
-        print(f"   Optimal number of features: {optimal_n}")
-        print(f"   Final selected features: {len(selected_features_final)}")
-        
-        # =====================================================================
-        # STEP 3A: SVM MODEL TRAINING
-        # =====================================================================
-        print("\n🤖 STEP 3A: SVM MODEL TRAINING")
-        print("-" * 60)
-        
-        # Initialize SVM trainer
-        svm_trainer = SVMModelTraining(
-            cv_folds=5,         # 5-fold cross-validation
-            test_size=0.2,      # 20% for testing
-            random_state=RANDOM_STATE
-        )
-        
-        # Run SVM training
-        print("Training SVM model...")
-        svm_results = svm_trainer.run_complete_pipeline(
-            X_filtered, y, selected_features_final
-        )
-        
-        print(f"✅ SVM training completed successfully!")
-        print(f"   SVM test accuracy: {svm_results['test_results']['accuracy']:.4f}")
-        
-        # =====================================================================
-        # STEP 3B: KNN MODEL TRAINING
-        # =====================================================================
-        print("\n🎯 STEP 3B: KNN MODEL TRAINING")
-        print("-" * 60)
-        
-        # Initialize KNN trainer
-        knn_trainer = KNNModelTraining(
-            cv_folds=5,         # 5-fold cross-validation
-            test_size=0.2,      # 20% for testing
-            random_state=RANDOM_STATE
-        )
-        
-        # Run KNN training
-        print("Training KNN model...")
-        knn_results = knn_trainer.run_complete_pipeline(
-            X_filtered, y, selected_features_final
-        )
-        
-        print(f"✅ KNN training completed successfully!")
-        print(f"   KNN test accuracy: {knn_results['test_results']['accuracy']:.4f}")
+        print("\n" + "="*80)
+        print("PIPELINE COMPLETED SUCCESSFULLY!")
+        print("="*80)
+        print(f"Original features: {X_step1.shape[1] if X_step1 is not None else 'N/A'}")
+        print(f"After Step 1: {len(features_step1) if features_step1 else 'N/A'}")
+        print(f"After Step 2: {len(features_step2) if features_step2 else 'N/A'}")
+        print(f"Models run: {len(model_results)}")
+        print(f"Results saved in: {BASE_RESULTS_DIR}")
+        print("="*80)
 
-        # =====================================================================
-        # STEP 3C: XGBOOST MODEL TRAINING
-        # =====================================================================
-        print("\n🎯 STEP 3C: XGBOOST MODEL TRAINING")
-        print("-" * 60)
-
-        # Initialize XGBoost trainer
-        xgb_trainer = XGBoostModelTraining(
-            cv_folds=5,
-            test_size=0.2,
-            random_state=RANDOM_STATE
-        )
-
-        # Run XGBoost training
-        print("Training XGBoost model...")
-        xgb_results = xgb_trainer.run_complete_pipeline(
-            X_filtered, y, selected_features_final
-        )
-
-        print(f"✅ XGBoost training completed successfully!")
-        print(f"   XGBoost test accuracy: {xgb_results['test_results']['accuracy']:.4f}")
-
-        # =====================================================================
-        # STEP 3D: LASSO MODEL TRAINING
-        # =====================================================================
-        print("\n🧪 STEP 3D: LASSO MODEL TRAINING")
-        print("-" * 60)
-
-        # Initialize Lasso trainer
-        lasso_trainer = LassoModelTraining(
-            cv_folds=5,
-            test_size=0.2,
-            random_state=RANDOM_STATE
-        )
-
-        # Run Lasso training
-        print("Training Lasso model...")
-        lasso_results = lasso_trainer.run_complete_pipeline(
-            X_filtered, y, selected_features_final
-        )
-
-        print(f"✅ Lasso training completed successfully!")
-        print(f"   Lasso test accuracy: {lasso_results['test_results']['accuracy']:.4f}")
-
-
-
-        
-        # =====================================================================
-        # PIPELINE SUMMARY
-        # =====================================================================
-        print("\n📊 PIPELINE SUMMARY")
-        print("=" * 80)
-        
-        # Create summary report
-        pipeline_summary = {
-            "Pipeline Configuration": {
-                "Data file": DATA_FILE,
-                "Random state": RANDOM_STATE,
-                "Total samples": X_filtered.shape[0],
-                "Disease categories": len(y.unique())
-            },
-            "Step 1 - Biological Filtering": {
-                "Initial features": results_df_step1.shape[0] if results_df_step1 is not None else "N/A",
-                "Features after filtering": len(selected_features_step1),
-                "Filtering criteria": "Prevalence ≥10%, FDR <0.05, Effect size ≥0.01"
-            },
-            "Step 2 - Feature Selection": {
-                "Input features": len(selected_features_step1),
-                "Selected features": len(selected_features_final),
-                "Selection method": "SVM coefficient-based",
-                "Optimal number": optimal_n
-            },
-            "Step 3A - SVM Results": {
-                "Best parameters": svm_results['best_params'],
-                "CV accuracy": f"{svm_results['cv_results']['accuracy']['test_mean']:.4f} ± {svm_results['cv_results']['accuracy']['test_std']:.4f}",
-                "Test accuracy": f"{svm_results['test_results']['accuracy']:.4f}",
-                "Test F1-macro": f"{svm_results['test_results']['f1_macro']:.4f}"
-            },
-            "Step 3B - KNN Results": {
-                "Best parameters": knn_results['best_params'],
-                "CV accuracy": f"{knn_results['cv_results']['accuracy']['test_mean']:.4f} ± {knn_results['cv_results']['accuracy']['test_std']:.4f}",
-                "Test accuracy": f"{knn_results['test_results']['accuracy']:.4f}",
-                "Test F1-macro": f"{knn_results['test_results']['f1_macro']:.4f}",
-                "Optimal k": knn_results['k_analysis']['optimal_k']
-            },
-            "Step 3C - XGBoost Results": {
-                "Best parameters": xgb_results['best_params'],
-                "CV accuracy": f"{xgb_results['cv_results']['accuracy']['test_mean']:.4f} ± {xgb_results['cv_results']['accuracy']['test_std']:.4f}",
-                "Test accuracy": f"{xgb_results['test_results']['accuracy']:.4f}",
-                "Test F1-macro": f"{xgb_results['test_results']['f1_macro']:.4f}"
-            },
-            "Step 3D - Lasso Results": {
-                "Best parameters": lasso_results['best_params'],
-                "CV accuracy": f"{lasso_results['cv_results']['accuracy']['test_mean']:.4f} ± {lasso_results['cv_results']['accuracy']['test_std']:.4f}",
-                "Test accuracy": f"{lasso_results['test_results']['accuracy']:.4f}",
-                "Test F1-macro": f"{lasso_results['test_results']['f1_macro']:.4f}"
-            }
-
+        final_summary = {
+            'pipeline_completion_time': datetime.now().isoformat(),
+            'status': 'completed',
+            'original_features': X_step1.shape[1] if X_step1 is not None else None,
+            'features_after_step1': len(features_step1) if features_step1 else None,
+            'features_after_step2': len(features_step2) if features_step2 else None,
+            'final_features': features_step2 if features_step2 else None,
+            'models_run': list(model_results.keys()) if model_results else [],
+            'configuration_used': RUN_CONFIG,
+            'step2_method': '2-phase: XGBoost + Cumulative Analysis → RFECV'
         }
         
-        # Print summary
-        for section, details in pipeline_summary.items():
-            print(f"\n{section}:")
-            print("-" * len(section))
-            for key, value in details.items():
-                print(f"  {key}: {value}")
-        
-        # Determine best model
-        svm_accuracy = svm_results['test_results']['accuracy']
-        knn_accuracy = knn_results['test_results']['accuracy']
-        xgb_accuracy = xgb_results['test_results']['accuracy']
-        lasso_accuracy = lasso_results['test_results']['accuracy']
-
-        best_model = max(
-            [("SVM", svm_accuracy), ("KNN", knn_accuracy), ("XGBoost", xgb_accuracy), ("Lasso", lasso_accuracy)],
-            key=lambda x: x[1]
-        )
-
-        print(f"\n🏆 BEST PERFORMING MODEL: {best_model[0]}")
-        print(f"   Best test accuracy: {best_model[1]:.4f}")
-
-        
-        # Save pipeline summary
-        import json
-        from datetime import datetime
-        
-        summary_filename = f"pipeline_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(summary_filename, 'w') as f:
-            # Convert numpy types to regular Python types for JSON serialization
-            json_summary = {}
-            for section, details in pipeline_summary.items():
-                json_summary[section] = {}
-                for key, value in details.items():
-                    if isinstance(value, (np.integer, np.floating)):
-                        json_summary[section][key] = value.item()
-                    else:
-                        json_summary[section][key] = value
-            
-            json.dump(json_summary, f, indent=2)
-        
-        print(f"\n💾 Pipeline summary saved to: {summary_filename}")
-        
-        # =====================================================================
-        # FINAL FEATURE LIST
-        # =====================================================================
-        print(f"\n📋 FINAL SELECTED FEATURES ({len(selected_features_final)}):")
-        print("-" * 60)
-        for i, feature in enumerate(selected_features_final, 1):
-            print(f"  {i:2d}. {feature}")
-        
-        print("\n🎉 PIPELINE COMPLETED SUCCESSFULLY!")
-        print("=" * 80)
-        
-        return {
-            'step1_results': (X_filtered, y, selected_features_step1, results_df_step1),
-            'step2_results': (selected_features_final, feature_rankings, optimal_n),
-            'svm_results': svm_results,
-            'knn_results': knn_results,
-            'pipeline_summary': pipeline_summary
-        }
+        with open(f"{BASE_RESULTS_DIR}/final_summary.json", 'w') as f:
+            json.dump(final_summary, f, indent=2)
         
     except Exception as e:
-        print(f"\n❌ ERROR: Pipeline failed with error: {str(e)}")
-        print("Please check your data.")
-        raise e
+        print(f"\nERROR: Pipeline failed with error: {e}")
+        print("Check the logs and configuration settings.")
+        
+        # Save error log
+        error_log = {
+            'error_time': datetime.now().isoformat(),
+            'error_message': str(e),
+            'error_type': type(e).__name__
+        }
+        
+        with open(f"{BASE_RESULTS_DIR}/error_log.json", 'w') as f:
+            json.dump(error_log, f, indent=2)
+        
+        raise
 
-def validate_environment():
-    """
-    Validate that all required files and dependencies are available
-    """
-    print("🔍 Validating environment...")
+# =============================================================================
+# TESTING FUNCTIONS
+# =============================================================================
+
+def quick_test_step1_only():
+    """Quick test function to run only Step 1"""
+    # Temporarily modify config
+    global RUN_CONFIG
+    original_config = RUN_CONFIG.copy()
     
-    # Check required files
-    required_files = [
-        'gmrepo_cleaned_dataset.csv',
-        'first_feature_selection.py',
-        'SVM_feature_selection.py', 
-        'SVM_model.py',
-        'kNN_model.py'
-    ]
+    RUN_CONFIG = {key: False for key in RUN_CONFIG}
+    RUN_CONFIG['step1_biological_filtering'] = True
+    RUN_CONFIG['save_intermediate_results'] = True
+    RUN_CONFIG['verbose'] = True
     
-    import os
-    missing_files = []
-    for file in required_files:
-        if not os.path.exists(file):
-            missing_files.append(file)
+    try:
+        main()
+    finally:
+        RUN_CONFIG = original_config
+
+def quick_test_step1_and_2():
+    """test function to run Steps 1 and 2 only"""
+    global RUN_CONFIG
+    original_config = RUN_CONFIG.copy()
     
-    if missing_files:
-        print(f"❌ Missing required files: {missing_files}")
-        return False
+    RUN_CONFIG = {key: False for key in RUN_CONFIG}
+    RUN_CONFIG['step1_biological_filtering'] = True
+    RUN_CONFIG['step2_feature_selection'] = True
+    RUN_CONFIG['save_intermediate_results'] = True
+    RUN_CONFIG['verbose'] = True
     
-    # Check required packages
-    required_packages = [
-        'pandas', 'numpy', 'sklearn', 'matplotlib', 'seaborn', 'scipy'
-    ]
-    
-    missing_packages = []
-    for package in required_packages:
-        try:
-            __import__(package)
-        except ImportError:
-            missing_packages.append(package)
-    
-    if missing_packages:
-        print(f"❌ Missing required packages: {missing_packages}")
-        return False
-    
-    print("✅ Environment validation passed!")
-    return True
+    try:
+        main()
+    finally:
+        RUN_CONFIG = original_config
+
 
 if __name__ == "__main__":
-    # Validate environment first
-    if validate_environment():
-        # Run the complete pipeline
-        results = main()
-    else:
-        print("Please check.")
+    # Choose what to run:
+    
+    # Uncomment to run the full pipeline (default)
+    main()
+    
+    # Uncomment to run only Step 1
+    # quick_test_step1_only()
+    
+    # Uncomment to run Step 1 and 2
+    # quick_test_step1_and_2()
+    
+    # Option 4: Modify RUN_CONFIG above to customize which steps to run
