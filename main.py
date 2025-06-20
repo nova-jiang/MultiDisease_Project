@@ -17,6 +17,8 @@ from first_feature_selection import BiologicalPrefiltering
 from step2_feature_selection import run_step2
 from SVM_model import run_svm_nested_cv
 from kNN_model import run_knn_nested_cv
+from XGBoost_model import run_xgboost_nested_cv
+from lasso_model import run_lasso_nested_cv
 
 # =============================================================================
 # CONFIGURATION SECTION
@@ -36,9 +38,9 @@ RUN_CONFIG = {
     # Step 3: Individual ML models (nested cross-validation)
     'step3_svm': True,                    # SVM with nested CV
     'step3_knn': True,                    # KNN with nested CV
-    'step3_logistic_regression': False,   # TODO: Implement
+    'step3_lasso_regression': True,       # Lasso with nested CV
     'step3_random_forest': False,         # TODO: Implement
-    'step3_xgboost': False,              # TODO: Implement
+    'step3_xgboost': True,                # XGBoost with nested CV
     'step3_naive_bayes': False,          # TODO: Implement
     'step3_neural_network': False,       # TODO: Implement
     
@@ -214,8 +216,8 @@ def run_step_3_models(X_final, y, final_features):
         models_to_run.append('svm_nested_cv')
     if RUN_CONFIG['step3_knn']:
         models_to_run.append('knn_nested_cv')
-    if RUN_CONFIG['step3_logistic_regression']:
-        models_to_run.append('logistic_regression')
+    if RUN_CONFIG['step3_lasso_regression']:
+        models_to_run.append('lasso_regression')
     if RUN_CONFIG['step3_random_forest']:
         models_to_run.append('random_forest')
     if RUN_CONFIG['step3_xgboost']:
@@ -254,6 +256,30 @@ def run_step_3_models(X_final, y, final_features):
                 results_dir = f"{BASE_RESULTS_DIR}/step3_models/knn_nested"
                 nested_results, classifier = run_knn_nested_cv(X_model_ready, y, results_dir)
                 
+                model_results[model_name] = {
+                    'status': 'completed',
+                    'type': 'nested_cross_validation',
+                    'performance': nested_results['overall_metrics'],
+                    'best_f1_macro': nested_results['overall_metrics']['f1_macro'],
+                    'results_dir': results_dir
+                }
+            
+            elif model_name == 'xgboost':
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/xgboost_nested"
+                nested_results, classifier = run_xgboost_nested_cv(X_model_ready, y, results_dir)
+            
+                model_results[model_name] = {
+                    'status': 'completed',
+                    'type': 'nested_cross_validation',
+                    'performance': nested_results['overall_metrics'],
+                    'best_f1_macro': nested_results['overall_metrics']['f1_macro'],
+                    'results_dir': results_dir
+                }
+
+            elif model_name == 'lasso_regression':
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/lasso_nested"
+                nested_results, classifier = run_lasso_nested_cv(X_model_ready, y, results_dir)
+            
                 model_results[model_name] = {
                     'status': 'completed',
                     'type': 'nested_cross_validation',
