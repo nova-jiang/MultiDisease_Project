@@ -1,5 +1,5 @@
 """
-Step 3: XGBoost Model Training with Nested Cross-Validation
+Step 3: Lasso Regression Model Training with Nested Cross-Validation
 """
 
 import os
@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from datetime import datetime
-from xgboost import XGBClassifier
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import (accuracy_score, f1_score, precision_score, recall_score,
-                             roc_auc_score, classification_report, confusion_matrix)
+                             roc_auc_score, confusion_matrix, classification_report)
 
-class NestedXGBoostClassifier:
-    def __init__(self, outer_cv_folds=5, inner_cv_folds=3, random_state=42, results_dir='results/step3_models/xgboost_nested'):
+class NestedLassoClassifier:
+    def __init__(self, outer_cv_folds=5, inner_cv_folds=3, random_state=42, results_dir='results/step3_models/lasso_nested'):
         self.outer_cv_folds = outer_cv_folds
         self.inner_cv_folds = inner_cv_folds
         self.random_state = random_state
@@ -29,30 +29,28 @@ class NestedXGBoostClassifier:
 
     def get_param_grid(self):
         return {
-            'learning_rate': [0.01, 0.1, 0.3],
-            'max_depth': [3, 5, 7],
-            'n_estimators': [50, 100, 200],
-            'subsample': [0.8],
-            'colsample_bytree': [0.8]
+            'C': np.logspace(-4, 4, 10),
+            'penalty': ['l1'],
+            'solver': ['liblinear'],
+            'max_iter': [5000]
         }
 
     def inner_cv_hyperparameter_optimization(self, X_train, y_train):
-        print(f"    Inner CV: Hyperparameter optimization on {X_train.shape[0]} samples...")
+        print(f"  Inner CV: Hyperparameter optimization on {X_train.shape[0]} samples...")
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X_train)
 
         param_grid = self.get_param_grid()
         inner_cv = StratifiedKFold(n_splits=self.inner_cv_folds, shuffle=True, random_state=self.random_state)
 
-        model = XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', random_state=self.random_state)
-        grid = GridSearchCV(model, param_grid, scoring='f1_macro', cv=inner_cv, n_jobs=-1, error_score='raise')
+        grid = GridSearchCV(LogisticRegression(), param_grid, scoring='f1_macro', cv=inner_cv, n_jobs=-1)
         grid.fit(X_scaled, y_train)
 
         return grid.best_estimator_, grid.best_score_, grid.best_params_, scaler
 
     def nested_cross_validation(self, X, y):
         print("="*80)
-        print("XGBOOST NESTED CROSS-VALIDATION PIPELINE")
+        print("NESTED CROSS-VALIDATION FOR LASSO REGRESSION")
         print("="*80)
 
         le = LabelEncoder()
@@ -71,7 +69,7 @@ class NestedXGBoostClassifier:
             y_train, y_test = y_encoded[train_idx], y_encoded[test_idx]
 
             best_model, best_score, best_params, scaler = self.inner_cv_hyperparameter_optimization(X_train, y_train)
-            print(f"    Best inner CV model: XGBoost (F1: {best_score:.4f})")
+            print(f"    Best inner CV model: Lasso (F1: {best_score:.4f})")
 
             X_train_scaled = scaler.fit_transform(X_train)
             X_test_scaled = scaler.transform(X_test)
@@ -84,10 +82,19 @@ class NestedXGBoostClassifier:
             except:
                 auc = None
 
+            acc = accuracy_score(y_test, y_pred)
+            f1_macro = f1_score(y_test, y_pred, average='macro')
+
+            print("  Fold {} Results:".format(fold_idx + 1))
+            print(f"    Test Accuracy: {acc:.4f}")
+            print(f"    Test F1-macro: {f1_macro:.4f}")
+            print(f"    Test AUC-macro: {auc:.4f}" if auc is not None else "    Test AUC-macro: N/A")
+            print(f"    Best Params: {best_params}")
+
             fold_results.append({
                 'fold': fold_idx + 1,
-                'accuracy': accuracy_score(y_test, y_pred),
-                'f1_macro': f1_score(y_test, y_pred, average='macro'),
+                'accuracy': acc,
+                'f1_macro': f1_macro,
                 'f1_weighted': f1_score(y_test, y_pred, average='weighted'),
                 'precision_macro': precision_score(y_test, y_pred, average='macro'),
                 'recall_macro': recall_score(y_test, y_pred, average='macro'),
@@ -115,6 +122,15 @@ class NestedXGBoostClassifier:
             'overall_confusion_matrix': confusion_matrix(all_y_true, all_y_pred).tolist(),
             'overall_classification_report': classification_report(all_y_true, all_y_pred, output_dict=True)
         }
+
+        print("="*80)
+        print("NESTED CV RESULTS SUMMARY")
+        print("="*80)
+        for k, v in self.nested_results['overall_metrics'].items():
+            if v is not None:
+                values = [f[k] for f in fold_results if f[k] is not None]
+                print(f"{k.replace('_', ' ').title()}: {np.mean(values):.4f} ± {np.std(values):.4f}")
+        print("="*80)
 
         return self.nested_results
 
@@ -238,22 +254,8 @@ class NestedXGBoostClassifier:
         plt.savefig(f"{self.results_dir}/classification_report_heatmap.png")
         plt.close()
 
-    def print_summary(self):
-        print("Saving results...")
-        print(f"Results saved to {self.results_dir}/")
-        print("="*80)
-        print("NESTED CV RESULTS SUMMARY")
-        print("="*80)
-        for metric, value in self.nested_results['overall_metrics'].items():
-            if value is not None:
-                std_dev = np.std([f[metric] for f in self.nested_results['fold_results'] if f[metric] is not None])
-                print(f"{metric.replace('_', ' ').title()}: {value:.4f} ± {std_dev:.4f}")
-        print("="*80)
-
-
-def run_xgboost_nested_cv(X, y, results_dir='results/step3_models/xgboost_nested'):
-    classifier = NestedXGBoostClassifier(results_dir=results_dir)
+def run_lasso_nested_cv(X, y, results_dir='results/step3_models/lasso_nested'):
+    classifier = NestedLassoClassifier(results_dir=results_dir)
     nested_results = classifier.nested_cross_validation(X, y)
     classifier.create_visualizations()
-    classifier.print_summary()
     return nested_results, classifier
