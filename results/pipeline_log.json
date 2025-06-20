@@ -1,0 +1,34 @@
+{
+  "pipeline_start_time": "2025-06-20 05:39:12",
+  "configuration": {
+    "step1_biological_filtering": true,
+    "step2_feature_selection": true,
+    "step3_svm": true,
+    "step3_knn": true,
+    "step3_logistic_regression": false,
+    "step3_random_forest": false,
+    "step3_xgboost": false,
+    "step3_naive_bayes": false,
+    "step3_neural_network": false,
+    "step4_cross_validation": false,
+    "step4_final_evaluation": true,
+    "save_intermediate_results": true,
+    "generate_visualizations": true,
+    "verbose": true
+  },
+  "step1_parameters": {
+    "min_prevalence": 0.03,
+    "fdr_threshold": 0.1,
+    "effect_size_threshold": 0.005
+  },
+  "step2_parameters": {
+    "xgb_top_k": 164,
+    "cv_folds": 5,
+    "random_state": 42,
+    "phases": [
+      "XGBoost_ranking",
+      "RFECV"
+    ]
+  },
+  "data_path": "gmrepo_cleaned_dataset.csv"
+}
