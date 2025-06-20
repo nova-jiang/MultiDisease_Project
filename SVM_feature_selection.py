@@ -1,73 +1,79 @@
 import pandas as pd
 import numpy as np
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import RFE, RFECV
+from sklearn.inspection import permutation_importance
 from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.feature_selection import RFE, RFECV
+from sklearn.metrics import accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-from collections import defaultdict
-from first_feature_selection import run_step1
+import pickle
+import json
+from datetime import datetime
+import time
 import warnings
 warnings.filterwarnings('ignore')
 
-class SVMFeatureSelection:
+class ThreeParallelFeatureSelection:
     """
-    SVM-assisted feature selection and ranking for microbiome multi-class classification
+    Comprehensive feature selection comparison using three parallel methods:
+    1. SVM Coefficient Ranking
+    2. RFE + Cross Validation  
+    3. Permutation Importance
     """
     
     def __init__(self, 
-                 C=1.0, 
-                 kernel='linear', 
-                 max_features=50, 
-                 cv_folds=5, 
+                 feature_numbers=[20, 30, 50, 70, 100, 140],
+                 cv_folds=5,
+                 test_size=0.2,
                  random_state=42,
-                 feature_selection_method='coef'):
+                 n_permutations=30):
         """
-        Initialize SVM feature selection pipeline
+        Initialize the three parallel methods comparison
         
         Parameters:
         -----------
-        C : float, default=1.0
-            Regularization parameter for SVM
-        kernel : str, default='linear'
-            Kernel type for SVM ('linear', 'rbf', 'poly')
-        max_features : int, default=50
-            Maximum number of top features to select
-        cv_folds : int, default=5
+        feature_numbers : list
+            List of feature subset sizes to test
+        cv_folds : int
             Number of cross-validation folds
-        random_state : int, default=42
+        test_size : float
+            Test set proportion
+        random_state : int
             Random state for reproducibility
-        feature_selection_method : str, default='coef'
-            Method for feature importance ('coef', 'rfe', 'stability')
+        n_permutations : int
+            Number of permutations for permutation importance
         """
-        self.C = C
-        self.kernel = kernel
-        self.max_features = max_features
+        self.feature_numbers = feature_numbers
         self.cv_folds = cv_folds
+        self.test_size = test_size
         self.random_state = random_state
-        self.feature_selection_method = feature_selection_method
+        self.n_permutations = n_permutations
         
-        self.svm_model = None
+        # Data preprocessing tools
         self.scaler = StandardScaler()
         self.label_encoder = LabelEncoder()
-        self.feature_rankings = None
-        self.selected_features = None
-        self.cv_results = None
         
-    def load_filtered_data(self, X_filtered, y, feature_list=None):
+        # Results storage
+        self.results = {}
+        self.selected_features = {}
+        self.feature_rankings = {}
+        self.computation_times = {}
+        
+    def prepare_data(self, X_filtered, y, selected_features_step1):
         """
-        Load the filtered data from Step 1
+        Prepare data for feature selection comparison
         
         Parameters:
         -----------
         X_filtered : pd.DataFrame
-            Filtered microbiome data from biological pre-filtering
+            Filtered data from Step 1
         y : pd.Series
-            Category labels
-        feature_list : list, optional
-            Specific list of features to use (if None, use all features in X_filtered)
+            Target labels
+        selected_features_step1 : list
+            Features from biological pre-filtering
             
         Returns:
         --------
@@ -76,493 +82,669 @@ class SVMFeatureSelection:
         y_encoded : np.ndarray
             Encoded labels
         """
-        print("Loading and processing filtered data...")
+        print("Preparing data for three parallel methods comparison...")
         
-        # Use specific features if provided, otherwise use all
-        if feature_list is not None:
-            available_features = [f for f in feature_list if f in X_filtered.columns]
-            if len(available_features) != len(feature_list):
-                missing = set(feature_list) - set(available_features)
-                print(f"Warning: {len(missing)} features not found in data: {list(missing)[:5]}...")
-            X_selected = X_filtered[available_features]
-        else:
-            X_selected = X_filtered.copy()
-            
-        print(f"Using {X_selected.shape[1]} features and {X_selected.shape[0]} samples")
-        print(f"Category distribution: {y.value_counts().to_dict()}")
+        # Select available features from Step 1
+        available_features = [f for f in selected_features_step1 if f in X_filtered.columns]
+        X_selected = X_filtered[available_features].copy()
         
-        # Encode labels
-        y_encoded = self.label_encoder.fit_transform(y)
-        print(f"Label encoding: {dict(zip(self.label_encoder.classes_, range(len(self.label_encoder.classes_))))}")
+        print(f"Using {len(available_features)} features from biological pre-filtering")
+        print(f"Dataset shape: {X_selected.shape}")
         
-        # Handle NaN values
-        print(f"Checking for missing values...")
-        nan_count = np.isnan(X_selected.values).sum()
-        print(f"Found {nan_count} NaN values")
-
+        # Handle missing values
+        nan_count = X_selected.isnull().sum().sum()
         if nan_count > 0:
-            print("Handling NaN values...")
-            # Option 1: Fill with median (recommended for microbiome data)
+            print(f"Found {nan_count} NaN values, filling with median...")
             from sklearn.impute import SimpleImputer
             imputer = SimpleImputer(strategy='median')
             X_selected = pd.DataFrame(
-                imputer.fit_transform(X_selected), 
-                columns=X_selected.columns, 
+                imputer.fit_transform(X_selected),
+                columns=X_selected.columns,
                 index=X_selected.index
             )
-            print("NaN values filled with median")
-
-        # Scale features
+        
+        # Encode labels and scale features
+        y_encoded = self.label_encoder.fit_transform(y)
         X_scaled = self.scaler.fit_transform(X_selected)
         
         # Store feature names for later reference
-        self.feature_names = X_selected.columns.tolist()
+        self.feature_names = available_features
+        self.classes = self.label_encoder.classes_
+        
+        print(f"Data preparation completed")
+        print(f"Classes: {list(self.classes)}")
         
         return X_scaled, y_encoded
     
-    def coefficient_based_ranking(self, X, y):
+    def method1_svm_coefficient_ranking(self, X, y):
         """
-        Rank features based on SVM coefficient importance
+        Method 1: SVM Coefficient-based Feature Ranking
         
         Parameters:
         -----------
         X : np.ndarray
             Feature matrix
         y : np.ndarray
-            Encoded labels
+            Target labels
             
         Returns:
         --------
-        feature_importance : pd.DataFrame
-            Features ranked by importance
+        feature_ranking : pd.DataFrame
+            Features ranked by SVM coefficient importance
         """
-        print("Step 2a: Coefficient-based feature ranking...")
+        print("\n🔥 Method 1: SVM Coefficient Ranking")
+        print("-" * 50)
         
-        # Train linear SVM for multi-class classification
-        svm = SVC(kernel='linear', C=self.C, random_state=self.random_state)
+        start_time = time.time()
+        
+        # Train linear SVM for coefficient extraction
+        svm = LinearSVC(C=1.0, random_state=self.random_state, max_iter=10000)
         svm.fit(X, y)
         
-        # For multi-class SVM, coef_ has shape (n_classes * (n_classes-1) / 2, n_features)
-        # We take the mean absolute value across all binary classifiers
+        # Calculate feature importance (mean absolute coefficient across classes)
         if len(np.unique(y)) > 2:
             coef_importance = np.abs(svm.coef_).mean(axis=0)
         else:
             coef_importance = np.abs(svm.coef_[0])
-            
-        # Create importance DataFrame
-        feature_importance = pd.DataFrame({
-            'feature': self.feature_names,
-            'importance': coef_importance
-        }).sort_values('importance', ascending=False)
         
-        print(f"Top 10 features by SVM coefficient importance:")
-        for i, (_, row) in enumerate(feature_importance.head(10).iterrows()):
-            print(f"  {i+1:2d}. {row['feature']:<40} {row['importance']:.6f}")
-            
-        return feature_importance
+        # Create ranking DataFrame
+        feature_ranking = pd.DataFrame({
+            'feature': self.feature_names,
+            'importance_score': coef_importance,
+            'method': 'SVM_Coefficient'
+        }).sort_values('importance_score', ascending=False).reset_index(drop=True)
+        
+        feature_ranking['rank'] = range(1, len(feature_ranking) + 1)
+        
+        computation_time = time.time() - start_time
+        self.computation_times['SVM_Coefficient'] = computation_time
+        
+        print(f"✅ Completed in {computation_time:.2f} seconds")
+        print("Top 10 features by SVM coefficient:")
+        for i, row in feature_ranking.head(10).iterrows():
+            print(f"  {row['rank']:2d}. {row['feature']:<35} {row['importance_score']:.6f}")
+        
+        return feature_ranking
     
-    def rfe_based_ranking(self, X, y):
+    def method2_rfe_cross_validation(self, X, y):
         """
-        Rank features using Recursive Feature Elimination with Cross-Validation
+        Method 2: Recursive Feature Elimination with Cross Validation
         
         Parameters:
         -----------
         X : np.ndarray
             Feature matrix
         y : np.ndarray
-            Encoded labels
+            Target labels
             
         Returns:
         --------
-        rfe_results : pd.DataFrame
+        feature_ranking : pd.DataFrame
             Features ranked by RFE importance
         """
-        print("Step 2b: RFE-based feature ranking...")
+        print("\n🎯 Method 2: RFE + Cross Validation")
+        print("-" * 50)
         
-        # Use RFECV to find optimal number of features
-        svm = SVC(kernel='linear', C=self.C, random_state=self.random_state)
+        start_time = time.time()
         
-        # Use smaller step size for more granular selection
-        min_features = max(1, min(10, len(self.feature_names) // 10))
-        max_features_rfe = min(self.max_features * 2, len(self.feature_names))
+        # Use LinearSVC as base estimator for RFE
+        base_estimator = LinearSVC(C=1.0, random_state=self.random_state, max_iter=10000)
         
+        # Determine minimum features and step size for efficiency
+        min_features = max(5, min(self.feature_numbers))
+        max_features = min(len(self.feature_names), max(self.feature_numbers))
+        step_size = max(1, (len(self.feature_names) - min_features) // 20)  # Adaptive step size
+        
+        print(f"  Running RFECV with {min_features}-{max_features} features, step={step_size}")
+        
+        # Perform RFECV
+        cv = StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=self.random_state)
         rfecv = RFECV(
-            estimator=svm,
-            step=1,
+            estimator=base_estimator,
+            step=step_size,
             min_features_to_select=min_features,
-            cv=StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=self.random_state),
+            cv=cv,
             scoring='accuracy',
-            n_jobs=-1
+            n_jobs=-1  # Use parallel processing
         )
         
         rfecv.fit(X, y)
         
-        print(f"Optimal number of features: {rfecv.n_features_}")
-        print(f"Cross-validation score with optimal features: {rfecv.grid_scores_[rfecv.n_features_-min_features]:.4f}")
-        
-        # Create RFE results DataFrame
-        rfe_results = pd.DataFrame({
+        # Create ranking DataFrame
+        feature_ranking = pd.DataFrame({
             'feature': self.feature_names,
+            'rfe_ranking': rfecv.ranking_,
             'selected': rfecv.support_,
-            'ranking': rfecv.ranking_
-        }).sort_values('ranking')
+            'method': 'RFE_CV'
+        }).sort_values('rfe_ranking').reset_index(drop=True)
         
-        print(f"Top 10 features by RFE ranking:")
-        for i, (_, row) in enumerate(rfe_results.head(10).iterrows()):
+        # Convert RFE ranking to importance score (lower rank = higher importance)
+        max_rank = feature_ranking['rfe_ranking'].max()
+        feature_ranking['importance_score'] = (max_rank - feature_ranking['rfe_ranking'] + 1) / max_rank
+        feature_ranking['rank'] = range(1, len(feature_ranking) + 1)
+        
+        computation_time = time.time() - start_time
+        self.computation_times['RFE_CV'] = computation_time
+        
+        print(f"✅ Completed in {computation_time:.2f} seconds")
+        print(f"  Optimal number of features found: {rfecv.n_features_}")
+        
+        # Get the best CV score - use cv_results_ instead of grid_scores_
+        if hasattr(rfecv, 'cv_results_'):
+            best_score = max(rfecv.cv_results_['mean_test_score'])
+            print(f"  Best CV score: {best_score:.4f}")
+        else:
+            # Fallback: manually calculate score for optimal features
+            optimal_features = np.where(rfecv.support_)[0]
+            X_optimal = X[:, optimal_features]
+            cv = StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=self.random_state)
+            scores = cross_val_score(base_estimator, X_optimal, y, cv=cv, scoring='accuracy')
+            print(f"  Best CV score: {scores.mean():.4f}")
+        
+        print("Top 10 features by RFE ranking:")
+        for i, row in feature_ranking.head(10).iterrows():
             status = "✓" if row['selected'] else "✗"
-            print(f"  {i+1:2d}. {row['feature']:<40} Rank: {row['ranking']:2d} {status}")
-            
-        return rfe_results, rfecv
+            print(f"  {row['rank']:2d}. {row['feature']:<35} Rank: {row['rfe_ranking']:2d} {status}")
+        
+        return feature_ranking
     
-    def stability_based_ranking(self, X, y, n_bootstrap=50):
+    def method3_permutation_importance(self, X, y):
         """
-        Rank features based on stability across bootstrap samples
+        Method 3: Permutation Importance
         
         Parameters:
         -----------
         X : np.ndarray
             Feature matrix
         y : np.ndarray
-            Encoded labels
-        n_bootstrap : int, default=50
-            Number of bootstrap iterations
+            Target labels
             
         Returns:
         --------
-        stability_results : pd.DataFrame
-            Features ranked by stability
+        feature_ranking : pd.DataFrame
+            Features ranked by permutation importance
         """
-        print("Step 2c: Stability-based feature ranking...")
+        print("\n🧪 Method 3: Permutation Importance")
+        print("-" * 50)
         
-        feature_selection_counts = defaultdict(int)
-        importance_scores = defaultdict(list)
+        start_time = time.time()
         
-        for i in range(n_bootstrap):
-            if (i + 1) % 10 == 0:
-                print(f"  Bootstrap iteration {i+1}/{n_bootstrap}")
-                
-            # Bootstrap sampling
-            indices = np.random.choice(len(X), size=len(X), replace=True)
-            X_boot = X[indices]
-            y_boot = y[indices]
-            
-            # Train SVM
-            svm = SVC(kernel='linear', C=self.C, random_state=self.random_state + i)
-            svm.fit(X_boot, y_boot)
-            
-            # Get feature importance
-            if len(np.unique(y_boot)) > 2:
-                coef_importance = np.abs(svm.coef_).mean(axis=0)
-            else:
-                coef_importance = np.abs(svm.coef_[0])
-                
-            # Select top features
-            top_indices = np.argsort(coef_importance)[-self.max_features:]
-            
-            for idx in top_indices:
-                feature_selection_counts[self.feature_names[idx]] += 1
-                importance_scores[self.feature_names[idx]].append(coef_importance[idx])
+        # Train a final model for permutation importance
+        # Use the same model type for fair comparison
+        final_model = SVC(kernel='rbf', C=1.0, random_state=self.random_state)
         
-        # Calculate stability metrics
-        stability_results = []
-        for feature in self.feature_names:
-            selection_frequency = feature_selection_counts[feature] / n_bootstrap
-            mean_importance = np.mean(importance_scores[feature]) if importance_scores[feature] else 0
-            std_importance = np.std(importance_scores[feature]) if len(importance_scores[feature]) > 1 else 0
-            
-            stability_results.append({
-                'feature': feature,
-                'selection_frequency': selection_frequency,
-                'mean_importance': mean_importance,
-                'std_importance': std_importance,
-                'stability_score': selection_frequency * mean_importance  # Combined metric
-            })
+        # Split data to get realistic importance scores
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.3, random_state=self.random_state, stratify=y
+        )
         
-        stability_df = pd.DataFrame(stability_results).sort_values('stability_score', ascending=False)
+        final_model.fit(X_train, y_train)
         
-        print(f"Top 10 features by stability ranking:")
-        for i, (_, row) in enumerate(stability_df.head(10).iterrows()):
-            print(f"  {i+1:2d}. {row['feature']:<40} "
-                  f"Freq: {row['selection_frequency']:.3f} "
-                  f"Imp: {row['mean_importance']:.6f}")
-            
-        return stability_df
+        print(f"  Computing permutation importance with {self.n_permutations} permutations...")
+        
+        # Calculate permutation importance
+        perm_importance = permutation_importance(
+            final_model, X_test, y_test,
+            n_repeats=self.n_permutations,
+            random_state=self.random_state,
+            scoring='accuracy',
+            n_jobs=-1
+        )
+        
+        # Create ranking DataFrame
+        feature_ranking = pd.DataFrame({
+            'feature': self.feature_names,
+            'importance_score': perm_importance.importances_mean,
+            'importance_std': perm_importance.importances_std,
+            'method': 'Permutation'
+        }).sort_values('importance_score', ascending=False).reset_index(drop=True)
+        
+        feature_ranking['rank'] = range(1, len(feature_ranking) + 1)
+        
+        computation_time = time.time() - start_time
+        self.computation_times['Permutation'] = computation_time
+        
+        print(f"✅ Completed in {computation_time:.2f} seconds")
+        print("Top 10 features by permutation importance:")
+        for i, row in feature_ranking.head(10).iterrows():
+            print(f"  {row['rank']:2d}. {row['feature']:<35} "
+                  f"{row['importance_score']:.6f} ± {row['importance_std']:.6f}")
+        
+        return feature_ranking
     
-    def combine_rankings(self, coef_ranking, rfe_ranking=None, stability_ranking=None):
+    def evaluate_feature_subsets(self, X, y, rankings):
         """
-        Combine different ranking methods to get final feature selection
-        
-        Parameters:
-        -----------
-        coef_ranking : pd.DataFrame
-            Coefficient-based ranking
-        rfe_ranking : pd.DataFrame, optional
-            RFE-based ranking
-        stability_ranking : pd.DataFrame, optional
-            Stability-based ranking
-            
-        Returns:
-        --------
-        final_ranking : pd.DataFrame
-            Combined feature ranking
-        """
-        print("Step 2d: Combining feature rankings...")
-        
-        # Start with coefficient ranking
-        final_df = coef_ranking[['feature', 'importance']].copy()
-        final_df['coef_rank'] = range(1, len(final_df) + 1)
-        
-        # Add RFE ranking if available
-        if rfe_ranking is not None:
-            rfe_dict = dict(zip(rfe_ranking['feature'], rfe_ranking['ranking']))
-            final_df['rfe_rank'] = final_df['feature'].map(rfe_dict)
-        
-        # Add stability ranking if available
-        if stability_ranking is not None:
-            stability_dict = dict(zip(stability_ranking['feature'], range(1, len(stability_ranking) + 1)))
-            final_df['stability_rank'] = final_df['feature'].map(stability_dict)
-        
-        # Calculate combined score (lower is better for ranks)
-        rank_cols = [col for col in final_df.columns if col.endswith('_rank')]
-        if len(rank_cols) > 1:
-            # Normalize ranks to 0-1 scale
-            for col in rank_cols:
-                final_df[f'{col}_norm'] = 1 - (final_df[col] - 1) / (final_df[col].max() - 1)
-            
-            # Combined score as average of normalized ranks
-            norm_cols = [col for col in final_df.columns if col.endswith('_norm')]
-            final_df['combined_score'] = final_df[norm_cols].mean(axis=1)
-            final_df = final_df.sort_values('combined_score', ascending=False)
-        else:
-            final_df['combined_score'] = 1 - (final_df['coef_rank'] - 1) / (final_df['coef_rank'].max() - 1)
-        
-        print(f"Final top 10 features (combined ranking):")
-        for i, (_, row) in enumerate(final_df.head(10).iterrows()):
-            print(f"  {i+1:2d}. {row['feature']:<40} Score: {row['combined_score']:.4f}")
-        
-        return final_df
-    
-    def evaluate_feature_subsets(self, X, y, final_ranking):
-        """
-        Evaluate different feature subset sizes using cross-validation
+        Evaluate different feature subset sizes for each method
         
         Parameters:
         -----------
         X : np.ndarray
             Feature matrix
         y : np.ndarray
-            Encoded labels
-        final_ranking : pd.DataFrame
-            Final feature ranking
+            Target labels
+        rankings : dict
+            Feature rankings from all three methods
             
         Returns:
         --------
-        cv_results : pd.DataFrame
-            Cross-validation results for different feature subset sizes
+        evaluation_results : dict
+            Performance results for each method and feature number
         """
-        print("Step 2e: Evaluating feature subset sizes...")
+        print("\n📊 Evaluating Feature Subset Performance")
+        print("=" * 60)
         
-        feature_sizes = [5, 10, 15, 20, 25, 30, 40, 50]
-        feature_sizes = [size for size in feature_sizes if size <= len(final_ranking)]
+        evaluation_results = {}
+        cv = StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=self.random_state)
         
-        cv_results = []
-        
-        for n_features in feature_sizes:
-            print(f"  Evaluating top {n_features} features...")
+        for method_name, ranking_df in rankings.items():
+            print(f"\n🔍 Evaluating {method_name}...")
+            method_results = {}
             
-            # Select top n features
-            top_features = final_ranking.head(n_features)['feature'].tolist()
-            feature_indices = [self.feature_names.index(f) for f in top_features if f in self.feature_names]
-            X_subset = X[:, feature_indices]
+            for n_features in self.feature_numbers:
+                if n_features > len(ranking_df):
+                    print(f"  Skipping {n_features} features (exceeds available features)")
+                    continue
+                    
+                print(f"  Testing with {n_features} features...")
+                
+                # Select top n features
+                top_features = ranking_df.head(n_features)['feature'].tolist()
+                feature_indices = [self.feature_names.index(f) for f in top_features 
+                                 if f in self.feature_names]
+                X_subset = X[:, feature_indices]
+                
+                # Cross-validation evaluation
+                model = SVC(kernel='rbf', C=1.0, random_state=self.random_state)
+                cv_scores = cross_val_score(model, X_subset, y, cv=cv, scoring='accuracy')
+                
+                # Train-test evaluation for additional metrics
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X_subset, y, test_size=self.test_size, 
+                    random_state=self.random_state, stratify=y
+                )
+                
+                model.fit(X_train, y_train)
+                y_pred = model.predict(X_test)
+                
+                test_accuracy = accuracy_score(y_test, y_pred)
+                test_f1 = f1_score(y_test, y_pred, average='macro')
+                
+                method_results[n_features] = {
+                    'cv_accuracy_mean': cv_scores.mean(),
+                    'cv_accuracy_std': cv_scores.std(),
+                    'test_accuracy': test_accuracy,
+                    'test_f1': test_f1,
+                    'selected_features': top_features
+                }
+                
+                print(f"    CV Accuracy: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
+                print(f"    Test Accuracy: {test_accuracy:.4f}")
             
-            # Cross-validation
-            svm = SVC(kernel=self.kernel, C=self.C, random_state=self.random_state)
-            cv_scores = cross_val_score(
-                svm, X_subset, y,
-                cv=StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=self.random_state),
-                scoring='accuracy'
-            )
-            
-            cv_results.append({
-                'n_features': n_features,
-                'mean_accuracy': cv_scores.mean(),
-                'std_accuracy': cv_scores.std(),
-                'min_accuracy': cv_scores.min(),
-                'max_accuracy': cv_scores.max()
-            })
+            evaluation_results[method_name] = method_results
         
-        cv_df = pd.DataFrame(cv_results)
-        
-        # Find optimal number of features
-        optimal_idx = cv_df['mean_accuracy'].idxmax()
-        optimal_n_features = cv_df.loc[optimal_idx, 'n_features']
-        optimal_accuracy = cv_df.loc[optimal_idx, 'mean_accuracy']
-        
-        print(f"\nOptimal number of features: {optimal_n_features}")
-        print(f"Optimal CV accuracy: {optimal_accuracy:.4f} ± {cv_df.loc[optimal_idx, 'std_accuracy']:.4f}")
-        
-        return cv_df, optimal_n_features
+        return evaluation_results
     
-    def visualize_results(self, final_ranking, cv_results, optimal_n_features):
+    def analyze_feature_overlap(self, rankings):
         """
-        Create visualizations for SVM feature selection results
+        Analyze overlap between different methods' feature selections
         
         Parameters:
         -----------
-        final_ranking : pd.DataFrame
-            Final feature ranking
-        cv_results : pd.DataFrame
-            Cross-validation results
-        optimal_n_features : int
-            Optimal number of features
+        rankings : dict
+            Feature rankings from all three methods
+            
+        Returns:
+        --------
+        overlap_analysis : dict
+            Analysis of feature overlap between methods
         """
-        print("Creating visualizations...")
+        print("\n🔗 Analyzing Feature Overlap Between Methods")
+        print("-" * 50)
         
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('SVM Feature Selection Results', fontsize=16)
+        overlap_analysis = {}
+        methods = list(rankings.keys())
         
-        # 1. Top features importance
-        top_features = final_ranking.head(20)
-        axes[0, 0].barh(range(len(top_features)), top_features['combined_score'])
-        axes[0, 0].set_yticks(range(len(top_features)))
-        axes[0, 0].set_yticklabels([f[:30] + '...' if len(f) > 30 else f 
-                                   for f in top_features['feature']], fontsize=8)
-        axes[0, 0].set_xlabel('Combined Importance Score')
-        axes[0, 0].set_title('Top 20 Features by Combined Ranking')
-        axes[0, 0].invert_yaxis()
+        # Analyze overlap at different feature numbers
+        for n_features in [20, 30, 50]:
+            if n_features <= min(len(rankings[m]) for m in methods):
+                print(f"\nTop {n_features} features overlap:")
+                
+                feature_sets = {}
+                for method in methods:
+                    top_features = set(rankings[method].head(n_features)['feature'])
+                    feature_sets[method] = top_features
+                
+                # Calculate pairwise overlaps
+                pairwise_overlaps = {}
+                for i, method1 in enumerate(methods):
+                    for method2 in methods[i+1:]:
+                        overlap = len(feature_sets[method1] & feature_sets[method2])
+                        overlap_pct = overlap / n_features * 100
+                        pairwise_overlaps[f"{method1}_vs_{method2}"] = {
+                            'overlap_count': overlap,
+                            'overlap_percentage': overlap_pct
+                        }
+                        print(f"  {method1} vs {method2}: {overlap}/{n_features} ({overlap_pct:.1f}%)")
+                
+                # Find consensus features (selected by all methods)
+                consensus = feature_sets[methods[0]]
+                for method in methods[1:]:
+                    consensus = consensus & feature_sets[method]
+                
+                print(f"  Consensus features (all methods): {len(consensus)}")
+                if len(consensus) > 0:
+                    print(f"    {list(consensus)[:5]}{'...' if len(consensus) > 5 else ''}")
+                
+                overlap_analysis[n_features] = {
+                    'pairwise_overlaps': pairwise_overlaps,
+                    'consensus_features': list(consensus),
+                    'consensus_count': len(consensus)
+                }
         
-        # 2. Feature importance distribution
-        axes[0, 1].hist(final_ranking['combined_score'], bins=30, alpha=0.7, edgecolor='black')
-        axes[0, 1].axvline(final_ranking.head(optimal_n_features)['combined_score'].min(), 
-                          color='red', linestyle='--', 
-                          label=f'Top {optimal_n_features} threshold')
-        axes[0, 1].set_xlabel('Combined Importance Score')
-        axes[0, 1].set_ylabel('Frequency')
-        axes[0, 1].set_title('Feature Importance Distribution')
-        axes[0, 1].legend()
+        return overlap_analysis
+    
+    def visualize_results(self, evaluation_results, rankings, overlap_analysis):
+        """
+        Create comprehensive visualizations of the comparison results
         
-        # 3. Cross-validation performance vs number of features
-        axes[1, 0].errorbar(cv_results['n_features'], cv_results['mean_accuracy'], 
-                           yerr=cv_results['std_accuracy'], marker='o', capsize=5)
-        axes[1, 0].axvline(optimal_n_features, color='red', linestyle='--', 
-                          label=f'Optimal: {optimal_n_features} features')
-        axes[1, 0].set_xlabel('Number of Features')
-        axes[1, 0].set_ylabel('Cross-Validation Accuracy')
-        axes[1, 0].set_title('Model Performance vs Feature Count')
-        axes[1, 0].legend()
-        axes[1, 0].grid(True, alpha=0.3)
+        Parameters:
+        -----------
+        evaluation_results : dict
+            Performance evaluation results
+        rankings : dict
+            Feature rankings from all methods
+        overlap_analysis : dict
+            Feature overlap analysis
+        """
+        print("\n📈 Creating visualizations...")
         
-        # 4. Feature ranking comparison (if multiple methods used)
-        rank_cols = [col for col in final_ranking.columns if col.endswith('_rank')]
-        if len(rank_cols) > 1:
-            for i, col in enumerate(rank_cols):
-                axes[1, 1].scatter(final_ranking[rank_cols[0]], final_ranking[col], 
-                                  alpha=0.6, label=col.replace('_rank', '').upper())
-            axes[1, 1].set_xlabel(rank_cols[0].replace('_rank', '').upper() + ' Rank')
-            axes[1, 1].set_ylabel('Other Method Ranks')
-            axes[1, 1].set_title('Feature Ranking Methods Comparison')
-            axes[1, 1].legend()
-        else:
-            # Show top features in a different way
-            top_20 = final_ranking.head(20)
-            colors = ['red' if i < optimal_n_features else 'gray' for i in range(len(top_20))]
-            axes[1, 1].bar(range(len(top_20)), top_20['importance'], color=colors, alpha=0.7)
-            axes[1, 1].set_xlabel('Feature Rank')
-            axes[1, 1].set_ylabel('SVM Coefficient Importance')
-            axes[1, 1].set_title(f'Top 20 Features (Red = Selected Top {optimal_n_features})')
+        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        fig.suptitle('Three Parallel Feature Selection Methods Comparison', fontsize=16)
+        
+        # 1. Performance comparison across feature numbers
+        ax1 = axes[0, 0]
+        for method_name, results in evaluation_results.items():
+            feature_nums = list(results.keys())
+            cv_means = [results[n]['cv_accuracy_mean'] for n in feature_nums]
+            cv_stds = [results[n]['cv_accuracy_std'] for n in feature_nums]
+            
+            ax1.errorbar(feature_nums, cv_means, yerr=cv_stds, marker='o', 
+                        label=method_name, capsize=5, linewidth=2)
+        
+        ax1.set_xlabel('Number of Features')
+        ax1.set_ylabel('CV Accuracy')
+        ax1.set_title('Performance vs Feature Count')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        
+        # 2. Test accuracy comparison
+        ax2 = axes[0, 1]
+        methods = list(evaluation_results.keys())
+        colors = ['blue', 'red', 'green']
+        
+        for i, method in enumerate(methods):
+            results = evaluation_results[method]
+            feature_nums = list(results.keys())
+            test_accs = [results[n]['test_accuracy'] for n in feature_nums]
+            
+            ax2.plot(feature_nums, test_accs, marker='s', color=colors[i], 
+                    label=method, linewidth=2)
+        
+        ax2.set_xlabel('Number of Features')
+        ax2.set_ylabel('Test Accuracy')
+        ax2.set_title('Test Set Performance')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+        
+        # 3. Computation time comparison
+        ax3 = axes[0, 2]
+        comp_times = [self.computation_times.get(m.replace('_', ' '), 0) for m in methods]
+        bars = ax3.bar(methods, comp_times, color=['lightblue', 'lightcoral', 'lightgreen'])
+        ax3.set_ylabel('Computation Time (seconds)')
+        ax3.set_title('Computation Time Comparison')
+        ax3.tick_params(axis='x', rotation=45)
+        
+        # Add value labels on bars
+        for bar, time_val in zip(bars, comp_times):
+            ax3.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
+                    f'{time_val:.1f}s', ha='center', va='bottom')
+        
+        # 4. Feature overlap heatmap
+        ax4 = axes[1, 0]
+        if 30 in overlap_analysis:
+            overlap_data = overlap_analysis[30]['pairwise_overlaps']
+            overlap_matrix = np.zeros((len(methods), len(methods)))
+            
+            # Fill diagonal with 100% (self-overlap)
+            np.fill_diagonal(overlap_matrix, 100)
+            
+            # Fill off-diagonal with pairwise overlaps
+            for i, method1 in enumerate(methods):
+                for j, method2 in enumerate(methods):
+                    if i < j:
+                        key = f"{method1}_vs_{method2}"
+                        if key in overlap_data:
+                            overlap_pct = overlap_data[key]['overlap_percentage']
+                            overlap_matrix[i, j] = overlap_pct
+                            overlap_matrix[j, i] = overlap_pct
+            
+            sns.heatmap(overlap_matrix, annot=True, fmt='.1f', cmap='Blues',
+                       xticklabels=methods, yticklabels=methods, ax=ax4)
+            ax4.set_title('Feature Overlap (Top 30 Features)')
+        
+        # 5. Top features comparison
+        ax5 = axes[1, 1]
+        # Show top 10 features from each method
+        top_n = 10
+        all_top_features = set()
+        for ranking in rankings.values():
+            all_top_features.update(ranking.head(top_n)['feature'])
+        
+        # Create a matrix showing which method selected which feature
+        feature_matrix = []
+        feature_labels = []
+        
+        for feature in list(all_top_features)[:15]:  # Limit to 15 for readability
+            row = []
+            for method in methods:
+                rank = rankings[method][rankings[method]['feature'] == feature].index
+                if len(rank) > 0 and rank[0] < top_n:
+                    row.append(top_n - rank[0])  # Higher value = higher importance
+                else:
+                    row.append(0)
+            feature_matrix.append(row)
+            feature_labels.append(feature[:25] + '...' if len(feature) > 25 else feature)
+        
+        if feature_matrix:
+            sns.heatmap(feature_matrix, annot=False, cmap='Reds',
+                       xticklabels=methods, yticklabels=feature_labels, ax=ax5)
+            ax5.set_title('Top Features by Method')
+        
+        # 6. Best method summary
+        ax6 = axes[1, 2]
+        best_performances = {}
+        for method_name, results in evaluation_results.items():
+            best_acc = max(results[n]['cv_accuracy_mean'] for n in results.keys())
+            best_n = max(results.keys(), key=lambda n: results[n]['cv_accuracy_mean'])
+            best_performances[method_name] = {
+                'accuracy': best_acc,
+                'n_features': best_n
+            }
+        
+        methods_short = [m.replace('_', '\n') for m in methods]
+        accuracies = [best_performances[m]['accuracy'] for m in methods]
+        feature_counts = [best_performances[m]['n_features'] for m in methods]
+        
+        bars = ax6.bar(methods_short, accuracies, color=['lightblue', 'lightcoral', 'lightgreen'])
+        ax6.set_ylabel('Best CV Accuracy')
+        ax6.set_title('Best Performance by Method')
+        
+        # Add labels showing optimal feature count
+        for bar, acc, n_feat in zip(bars, accuracies, feature_counts):
+            ax6.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.005,
+                    f'{acc:.3f}\n({n_feat} features)', ha='center', va='bottom', fontsize=8)
         
         plt.tight_layout()
+        plt.savefig('three_methods_comparison.png', dpi=300, bbox_inches='tight')
         plt.show()
     
-    def run_complete_pipeline(self, X_filtered, y, feature_list=None):
+    def save_results(self, rankings, evaluation_results, overlap_analysis):
         """
-        Run the complete SVM feature selection pipeline
+        Save all results to files for later analysis
+        
+        Parameters:
+        -----------
+        rankings : dict
+            Feature rankings from all methods
+        evaluation_results : dict
+            Performance evaluation results
+        overlap_analysis : dict
+            Feature overlap analysis
+        """
+        print("\n💾 Saving results...")
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Save feature rankings
+        for method, ranking_df in rankings.items():
+            filename = f"feature_ranking_{method}_{timestamp}.csv"
+            ranking_df.to_csv(filename, index=False)
+            print(f"  {method} ranking saved to: {filename}")
+        
+        # Save evaluation results
+        eval_filename = f"evaluation_results_{timestamp}.json"
+        with open(eval_filename, 'w') as f:
+            # Convert numpy types for JSON serialization
+            json_results = {}
+            for method, results in evaluation_results.items():
+                json_results[method] = {}
+                for n_features, metrics in results.items():
+                    json_results[method][str(n_features)] = {
+                        k: float(v) if isinstance(v, (np.floating, np.integer)) else v
+                        for k, v in metrics.items()
+                    }
+            json.dump(json_results, f, indent=2)
+        print(f"  Evaluation results saved to: {eval_filename}")
+        
+        # Save overlap analysis
+        overlap_filename = f"overlap_analysis_{timestamp}.json"
+        with open(overlap_filename, 'w') as f:
+            json.dump(overlap_analysis, f, indent=2)
+        print(f"  Overlap analysis saved to: {overlap_filename}")
+        
+        # Save computation times
+        time_filename = f"computation_times_{timestamp}.json"
+        with open(time_filename, 'w') as f:
+            json.dump(self.computation_times, f, indent=2)
+        print(f"  Computation times saved to: {time_filename}")
+        
+    def run_complete_comparison(self, X_filtered, y, selected_features_step1):
+        """
+        Run the complete three parallel methods comparison
         
         Parameters:
         -----------
         X_filtered : pd.DataFrame
-            Filtered microbiome data from Step 1
+            Filtered data from Step 1
         y : pd.Series
-            Category labels
-        feature_list : list, optional
-            Specific features to use (if None, use all from X_filtered)
+            Target labels  
+        selected_features_step1 : list
+            Features from biological pre-filtering
             
         Returns:
         --------
-        selected_features : list
-            Final selected feature names
-        final_ranking : pd.DataFrame
-            Complete feature ranking
-        optimal_n_features : int
-            Optimal number of features
+        complete_results : dict
+            All results from the comparison
         """
-        print("="*60)
-        print("SVM FEATURE SELECTION PIPELINE")
-        print("="*60)
+        print("="*80)
+        print("THREE PARALLEL FEATURE SELECTION METHODS COMPARISON")
+        print("="*80)
         
-        # Load and process data
-        X_processed, y_encoded = self.load_filtered_data(X_filtered, y, feature_list)
+        # Prepare data
+        X_processed, y_encoded = self.prepare_data(X_filtered, y, selected_features_step1)
         
-        # Method 1: Coefficient-based ranking
-        coef_ranking = self.coefficient_based_ranking(X_processed, y_encoded)
+        # Run three methods
+        rankings = {}
         
-        # Method 2: RFE-based ranking (optional, can be time-consuming)
-        rfe_ranking = None
-        if self.feature_selection_method in ['rfe', 'combined']:
-            rfe_ranking, rfecv_model = self.rfe_based_ranking(X_processed, y_encoded)
+        # Method 1: SVM Coefficient
+        rankings['SVM_Coefficient'] = self.method1_svm_coefficient_ranking(X_processed, y_encoded)
         
-        # Method 3: Stability-based ranking (optional)
-        stability_ranking = None
-        if self.feature_selection_method in ['stability', 'combined']:
-            stability_ranking = self.stability_based_ranking(X_processed, y_encoded)
+        # Method 2: RFE + CV
+        rankings['RFE_CV'] = self.method2_rfe_cross_validation(X_processed, y_encoded)
         
-        # Combine rankings
-        final_ranking = self.combine_rankings(coef_ranking, rfe_ranking, stability_ranking)
+        # Method 3: Permutation Importance
+        rankings['Permutation'] = self.method3_permutation_importance(X_processed, y_encoded)
         
-        # Evaluate different feature subset sizes
-        cv_results, optimal_n_features = self.evaluate_feature_subsets(X_processed, y_encoded, final_ranking)
+        # Store rankings
+        self.feature_rankings = rankings
         
-        # Select final features
-        selected_features = final_ranking.head(optimal_n_features)['feature'].tolist()
+        # Evaluate feature subsets
+        evaluation_results = self.evaluate_feature_subsets(X_processed, y_encoded, rankings)
         
-        # Store results
-        self.feature_rankings = final_ranking
-        self.selected_features = selected_features
-        self.cv_results = cv_results
+        # Analyze feature overlap
+        overlap_analysis = self.analyze_feature_overlap(rankings)
         
         # Visualize results
-        self.visualize_results(final_ranking, cv_results, optimal_n_features)
+        self.visualize_results(evaluation_results, rankings, overlap_analysis)
         
-        print("="*60)
-        print("SVM FEATURE SELECTION COMPLETED!")
-        print(f"Selected {len(selected_features)} optimal features")
-        print(f"Expected CV accuracy: {cv_results[cv_results['n_features']==optimal_n_features]['mean_accuracy'].iloc[0]:.4f}")
+        # Save results
+        self.save_results(rankings, evaluation_results, overlap_analysis)
+        
+        # Generate summary
+        self.generate_summary(rankings, evaluation_results, overlap_analysis)
+        
+        print("\n🎉 THREE PARALLEL METHODS COMPARISON COMPLETED!")
+        print("="*80)
+        
+        return {
+            'rankings': rankings,
+            'evaluation_results': evaluation_results,
+            'overlap_analysis': overlap_analysis,
+            'computation_times': self.computation_times
+        }
+    
+    def generate_summary(self, rankings, evaluation_results, overlap_analysis):
+        """
+        Generate a comprehensive summary of the comparison
+        """
+        print("\n📋 COMPARISON SUMMARY")
         print("="*60)
         
-        return selected_features, final_ranking, optimal_n_features
+        # Find best performing method
+        best_method = None
+        best_accuracy = 0
+        best_n_features = 0
+        
+        for method_name, results in evaluation_results.items():
+            for n_features, metrics in results.items():
+                if metrics['cv_accuracy_mean'] > best_accuracy:
+                    best_accuracy = metrics['cv_accuracy_mean']
+                    best_method = method_name
+                    best_n_features = n_features
+        
+        print(f"🏆 BEST PERFORMING METHOD: {best_method}")
+        print(f"   Best CV Accuracy: {best_accuracy:.4f}")
+        print(f"   Optimal Features: {best_n_features}")
+        
+        # Performance comparison
+        print(f"\n📊 PERFORMANCE COMPARISON:")
+        for method_name, results in evaluation_results.items():
+            max_acc = max(results[n]['cv_accuracy_mean'] for n in results.keys())
+            optimal_n = max(results.keys(), key=lambda n: results[n]['cv_accuracy_mean'])
+            comp_time = self.computation_times.get(method_name, 0)
+            
+            print(f"   {method_name}:")
+            print(f"     Best CV Accuracy: {max_acc:.4f}")
+            print(f"     Optimal Features: {optimal_n}")
+            print(f"     Computation Time: {comp_time:.2f}s")
+        
+        # Feature overlap insights
+        if 30 in overlap_analysis:
+            consensus_count = overlap_analysis[30]['consensus_count']
+            print(f"\n🔗 FEATURE OVERLAP (Top 30):")
+            print(f"   Consensus features: {consensus_count}")
+            
+            pairwise = overlap_analysis[30]['pairwise_overlaps']
+            for pair, data in pairwise.items():
+                print(f"   {pair}: {data['overlap_percentage']:.1f}%")
 
-# if __name__ == "__main__":
-#     print("Running Step 1: Biological Pre-filtering...")
-#     X_filtered, y, selected_features_step1, results_df = run_step1('gmrepo_cleaned_dataset.csv')
-    
-#     print("\nRunning Step 2: SVM Feature Selection...")
-#     svm_selector = SVMFeatureSelection(
-#         C=1.0,                           # SVM regularization parameter
-#         kernel='linear',                 # Use linear kernel for interpretability
-#         max_features=50,                 # Maximum features to consider
-#         cv_folds=5,                      # 5-fold cross-validation
-#         feature_selection_method='coef'  # Use coefficient-based selection (fastest)
-#         # Maybe: 'coef', 'rfe', 'stability', 'combined'
-#     )
-    
-#    # Run SVM feature selection pipeline
-#     selected_features_final, feature_rankings, optimal_n = svm_selector.run_complete_pipeline(
-#         X_filtered, y
-#     )
-    
-#    # Save results
-#     feature_rankings.to_csv('svm_feature_rankings.csv', index=False)
-    
-#     print(f"\nFinal selected features ({len(selected_features_final)}):")
-#     for i, feature in enumerate(selected_features_final, 1):
-#         print(f"{i:2d}. {feature}")

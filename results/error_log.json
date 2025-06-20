@@ -1,0 +1,5 @@
+{
+  "error_time": "2025-06-20T03:53:44.839436",
+  "error_message": "ModelInformedFeatureSelector.__init__() got an unexpected keyword argument 'use_cumulative_analysis'",
+  "error_type": "TypeError"
+}

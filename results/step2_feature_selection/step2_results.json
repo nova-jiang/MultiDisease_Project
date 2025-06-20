@@ -1,0 +1,1556 @@
+{
+  "timestamp": "2025-06-20T05:41:16.380448",
+  "parameters": {
+    "xgb_top_k": 164,
+    "cv_folds": 5,
+    "random_state": 42
+  },
+  "phase1": {
+    "model_used": "XGBoost",
+    "best_params": {
+      "learning_rate": 0.2,
+      "max_depth": 3,
+      "n_estimators": 100
+    },
+    "best_cv_score": 0.7305107987885153,
+    "top_features": [
+      "Blautia producta",
+      "Actinomyces massiliensis",
+      "Veillonella dispar",
+      "Bacteroides plebeius",
+      "[Clostridium] scindens",
+      "Coprococcus comes",
+      "Streptococcus thermophilus",
+      "Prevotella buccae",
+      "Methanobrevibacter sp.",
+      "Bacteroides coprocola",
+      "Actinomyces viscosus",
+      "Pseudoflavonifractor capillosus",
+      "Actinomyces odontolyticus",
+      "Bacteroides coprophilus",
+      "Actinomyces naeslundii",
+      "[Clostridium] methylpentosum",
+      "Veillonella atypica",
+      "[Eubacterium] hallii",
+      "[Clostridium] asparagiforme",
+      "Ruminococcus sp. 5_1_39BFAA",
+      "Gordonibacter pamelaeae",
+      "Lachnospiraceae bacterium 1_4_56FAA",
+      "Lactobacillus sanfranciscensis",
+      "Veillonella parvula",
+      "[Ruminococcus] torques",
+      "Lachnospiraceae bacterium 7_1_58FAA",
+      "Peptostreptococcus sp.",
+      "Alistipes indistinctus",
+      "Rothia dentocariosa",
+      "Fusobacterium periodonticum",
+      "Streptococcus infantarius",
+      "Bifidobacterium breve",
+      "Scardovia wiggsiae",
+      "Bifidobacterium adolescentis",
+      "Dorea longicatena",
+      "Eubacterium ventriosum",
+      "Unknown",
+      "Ruminococcus bromii",
+      "Haemophilus haemolyticus",
+      "Collinsella aerofaciens",
+      "Gemella sanguinis",
+      "Butyrivibrio crossotus",
+      "Klebsiella oxytoca",
+      "Subdoligranulum variabile",
+      "Dorea formicigenerans",
+      "Prevotella stercorea",
+      "Desulfovibrio piger",
+      "Holdemanella biformis",
+      "Holdemania filiformis",
+      "Blautia obeum",
+      "Streptococcus parasanguinis",
+      "Bacteroides thetaiotaomicron",
+      "Clostridium sp. L2-50",
+      "Bifidobacterium catenulatum",
+      "Lactobacillus salivarius",
+      "Lachnospiraceae bacterium 3_1_46FAA",
+      "Streptococcus anginosus",
+      "Flavonifractor plautii",
+      "Prevotella copri",
+      "Coprococcus catus",
+      "Adlercreutzia equolifaciens",
+      "Streptococcus infantis",
+      "Barnesiella intestinihominis",
+      "Fusobacterium ulcerans",
+      "Lactococcus lactis",
+      "Lactobacillus crispatus",
+      "Erysipelotrichaceae bacterium 6_1_45",
+      "Streptococcus mitis",
+      "Clostridium perfringens",
+      "Oxalobacter formigenes",
+      "Gardnerella vaginalis",
+      "Bacteroides finegoldii",
+      "Actinomyces graevenitzii",
+      "Enterococcus faecium",
+      "Campylobacter concisus",
+      "Lachnospiraceae bacterium 5_1_57FAA",
+      "Lachnospiraceae bacterium 9_1_43BFAA",
+      "Bifidobacterium longum",
+      "Fusobacterium mortiferum",
+      "Lachnospiraceae bacterium 2_1_46FAA",
+      "Pyramidobacter piscolens",
+      "Propionibacterium propionicum",
+      "Blautia hydrogenotrophica",
+      "Bacteroides massiliensis",
+      "Candidatus Alistipes marseilloanorexicus AP11",
+      "Bifidobacterium dentium",
+      "Citrobacter freundii",
+      "Faecalibacterium prausnitzii",
+      "Escherichia coli",
+      "Lachnospiraceae bacterium 4_1_37FAA",
+      "Bacteroides oleiciplenus",
+      "Parabacteroides merdae",
+      "Roseburia hominis",
+      "Eubacterium limosum",
+      "Lactobacillus mucosae",
+      "Bilophila wadsworthia",
+      "Lachnospiraceae bacterium 6_1_63FAA",
+      "Parabacteroides goldsteinii",
+      "Bacteroides nordii",
+      "Streptococcus sanguinis",
+      "Eggerthella lenta",
+      "Bacteroides faecis",
+      "Megamonas hypermegale",
+      "Bacteroides stercoris",
+      "Haemophilus parainfluenzae",
+      "Streptococcus salivarius",
+      "Dialister invisus",
+      "Bacteroides sp. 2_1_22",
+      "Gemella morbillorum",
+      "Clostridiaceae bacterium JC118",
+      "[Eubacterium] infirmum",
+      "Ruminococcus albus",
+      "Lachnospiraceae bacterium 5_1_63FAA",
+      "Streptococcus australis",
+      "Turicibacter sanguinis",
+      "Ruminococcus champanellensis",
+      "Aggregatibacter segnis",
+      "Ruminococcaceae bacterium D16",
+      "Burkholderiales bacterium 1_1_47",
+      "[Ruminococcus] gnavus",
+      "Odoribacter splanchnicus",
+      "[Clostridium] leptum",
+      "Alistipes obesi",
+      "Clostridiales bacterium 1_7_47FAA",
+      "Butyricimonas synergistica",
+      "Rothia mucilaginosa",
+      "Erysipelotrichaceae bacterium 3_1_53",
+      "Lactobacillus ruminis",
+      "Bacteroides uniformis",
+      "Blautia hansenii",
+      "Sutterella wadsworthensis",
+      "Lactobacillus rhamnosus",
+      "Bifidobacterium pseudocatenulatum",
+      "Lactobacillus gasseri",
+      "Parabacteroides distasonis",
+      "Streptococcus gordonii",
+      "Methanobrevibacter smithii",
+      "Gemella haemolysans",
+      "Streptococcus tigurinus",
+      "Catenibacterium mitsuokai",
+      "Eubacterium ramulus",
+      "Collinsella intestinalis",
+      "Lactobacillus casei",
+      "Paraprevotella xylaniphila",
+      "Bacteroides ovatus",
+      "Dialister succinatiphilus",
+      "Erysipelatoclostridium ramosum",
+      "Roseburia inulinivorans",
+      "Klebsiella pneumoniae",
+      "Alistipes finegoldii",
+      "Bifidobacterium animalis",
+      "[Clostridium] bolteae",
+      "Fusobacterium varium",
+      "Streptococcus mutans",
+      "Alistipes onderdonkii",
+      "Anaerotruncus colihominis",
+      "Lachnospiraceae bacterium 3_1_57FAA_CT1",
+      "[Eubacterium] dolichum",
+      "Lactobacillus vaginalis",
+      "Abiotrophia defectiva",
+      "Bacteroides intestinalis",
+      "Bacteroides vulgatus",
+      "Fusobacterium nucleatum",
+      "[Clostridium] clostridioforme"
+    ],
+    "user_specified_k": 164,
+    "actually_used_k": 164,
+    "feature_importance": [
+      {
+        "feature": "Blautia producta",
+        "importance": 0.05224268138408661
+      },
+      {
+        "feature": "Actinomyces massiliensis",
+        "importance": 0.027382586151361465
+      },
+      {
+        "feature": "Veillonella dispar",
+        "importance": 0.022712549194693565
+      },
+      {
+        "feature": "Bacteroides plebeius",
+        "importance": 0.018474051728844643
+      },
+      {
+        "feature": "[Clostridium] scindens",
+        "importance": 0.01635059341788292
+      },
+      {
+        "feature": "Coprococcus comes",
+        "importance": 0.014411786571145058
+      },
+      {
+        "feature": "Streptococcus thermophilus",
+        "importance": 0.01212983950972557
+      },
+      {
+        "feature": "Prevotella buccae",
+        "importance": 0.011860597878694534
+      },
+      {
+        "feature": "Methanobrevibacter sp.",
+        "importance": 0.011365242302417755
+      },
+      {
+        "feature": "Bacteroides coprocola",
+        "importance": 0.010987981222569942
+      },
+      {
+        "feature": "Actinomyces viscosus",
+        "importance": 0.010922026820480824
+      },
+      {
+        "feature": "Pseudoflavonifractor capillosus",
+        "importance": 0.01046299934387207
+      },
+      {
+        "feature": "Actinomyces odontolyticus",
+        "importance": 0.010212237015366554
+      },
+      {
+        "feature": "Bacteroides coprophilus",
+        "importance": 0.010169255547225475
+      },
+      {
+        "feature": "Actinomyces naeslundii",
+        "importance": 0.009884525090456009
+      },
+      {
+        "feature": "[Clostridium] methylpentosum",
+        "importance": 0.009720299392938614
+      },
+      {
+        "feature": "Veillonella atypica",
+        "importance": 0.009366952814161777
+      },
+      {
+        "feature": "[Eubacterium] hallii",
+        "importance": 0.00906852725893259
+      },
+      {
+        "feature": "[Clostridium] asparagiforme",
+        "importance": 0.008922040462493896
+      },
+      {
+        "feature": "Ruminococcus sp. 5_1_39BFAA",
+        "importance": 0.008902193047106266
+      },
+      {
+        "feature": "Gordonibacter pamelaeae",
+        "importance": 0.008701498620212078
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 1_4_56FAA",
+        "importance": 0.00824903417378664
+      },
+      {
+        "feature": "Lactobacillus sanfranciscensis",
+        "importance": 0.008238306269049644
+      },
+      {
+        "feature": "Veillonella parvula",
+        "importance": 0.008158124051988125
+      },
+      {
+        "feature": "[Ruminococcus] torques",
+        "importance": 0.00808033999055624
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 7_1_58FAA",
+        "importance": 0.008061399683356285
+      },
+      {
+        "feature": "Peptostreptococcus sp.",
+        "importance": 0.008007501251995564
+      },
+      {
+        "feature": "Alistipes indistinctus",
+        "importance": 0.00782462302595377
+      },
+      {
+        "feature": "Rothia dentocariosa",
+        "importance": 0.007801514584571123
+      },
+      {
+        "feature": "Fusobacterium periodonticum",
+        "importance": 0.007361812051385641
+      },
+      {
+        "feature": "Streptococcus infantarius",
+        "importance": 0.00719448970630765
+      },
+      {
+        "feature": "Bifidobacterium breve",
+        "importance": 0.007033838424831629
+      },
+      {
+        "feature": "Scardovia wiggsiae",
+        "importance": 0.006972125731408596
+      },
+      {
+        "feature": "Bifidobacterium adolescentis",
+        "importance": 0.0068701282143592834
+      },
+      {
+        "feature": "Dorea longicatena",
+        "importance": 0.006771105341613293
+      },
+      {
+        "feature": "Eubacterium ventriosum",
+        "importance": 0.006228912156075239
+      },
+      {
+        "feature": "Unknown",
+        "importance": 0.006221217568963766
+      },
+      {
+        "feature": "Ruminococcus bromii",
+        "importance": 0.006198449060320854
+      },
+      {
+        "feature": "Haemophilus haemolyticus",
+        "importance": 0.006160093937069178
+      },
+      {
+        "feature": "Collinsella aerofaciens",
+        "importance": 0.006037351209670305
+      },
+      {
+        "feature": "Gemella sanguinis",
+        "importance": 0.0060133496299386024
+      },
+      {
+        "feature": "Butyrivibrio crossotus",
+        "importance": 0.0060096862725913525
+      },
+      {
+        "feature": "Klebsiella oxytoca",
+        "importance": 0.005880908574908972
+      },
+      {
+        "feature": "Subdoligranulum variabile",
+        "importance": 0.005867883563041687
+      },
+      {
+        "feature": "Dorea formicigenerans",
+        "importance": 0.005843122024089098
+      },
+      {
+        "feature": "Prevotella stercorea",
+        "importance": 0.005791612900793552
+      },
+      {
+        "feature": "Desulfovibrio piger",
+        "importance": 0.0057822284288704395
+      },
+      {
+        "feature": "Holdemanella biformis",
+        "importance": 0.005723478272557259
+      },
+      {
+        "feature": "Holdemania filiformis",
+        "importance": 0.005671506281942129
+      },
+      {
+        "feature": "Blautia obeum",
+        "importance": 0.005643574986606836
+      },
+      {
+        "feature": "Streptococcus parasanguinis",
+        "importance": 0.005428431089967489
+      },
+      {
+        "feature": "Bacteroides thetaiotaomicron",
+        "importance": 0.0053546917624771595
+      },
+      {
+        "feature": "Clostridium sp. L2-50",
+        "importance": 0.0053097642958164215
+      },
+      {
+        "feature": "Bifidobacterium catenulatum",
+        "importance": 0.005198806058615446
+      },
+      {
+        "feature": "Lactobacillus salivarius",
+        "importance": 0.005147050134837627
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 3_1_46FAA",
+        "importance": 0.005087629891932011
+      },
+      {
+        "feature": "Streptococcus anginosus",
+        "importance": 0.0050735631957650185
+      },
+      {
+        "feature": "Flavonifractor plautii",
+        "importance": 0.005057570058852434
+      },
+      {
+        "feature": "Prevotella copri",
+        "importance": 0.004977809265255928
+      },
+      {
+        "feature": "Coprococcus catus",
+        "importance": 0.004943489097058773
+      },
+      {
+        "feature": "Adlercreutzia equolifaciens",
+        "importance": 0.004936465993523598
+      },
+      {
+        "feature": "Streptococcus infantis",
+        "importance": 0.004918364807963371
+      },
+      {
+        "feature": "Barnesiella intestinihominis",
+        "importance": 0.004909487906843424
+      },
+      {
+        "feature": "Fusobacterium ulcerans",
+        "importance": 0.00483681121841073
+      },
+      {
+        "feature": "Lactococcus lactis",
+        "importance": 0.004811122547835112
+      },
+      {
+        "feature": "Lactobacillus crispatus",
+        "importance": 0.004810044076293707
+      },
+      {
+        "feature": "Erysipelotrichaceae bacterium 6_1_45",
+        "importance": 0.004710203967988491
+      },
+      {
+        "feature": "Streptococcus mitis",
+        "importance": 0.004665534012019634
+      },
+      {
+        "feature": "Clostridium perfringens",
+        "importance": 0.004652213770896196
+      },
+      {
+        "feature": "Oxalobacter formigenes",
+        "importance": 0.004593254067003727
+      },
+      {
+        "feature": "Gardnerella vaginalis",
+        "importance": 0.004575391300022602
+      },
+      {
+        "feature": "Bacteroides finegoldii",
+        "importance": 0.004570877179503441
+      },
+      {
+        "feature": "Actinomyces graevenitzii",
+        "importance": 0.0045644245110452175
+      },
+      {
+        "feature": "Enterococcus faecium",
+        "importance": 0.00449633551761508
+      },
+      {
+        "feature": "Campylobacter concisus",
+        "importance": 0.004446239676326513
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 5_1_57FAA",
+        "importance": 0.00436406908556819
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 9_1_43BFAA",
+        "importance": 0.004356345161795616
+      },
+      {
+        "feature": "Bifidobacterium longum",
+        "importance": 0.004250894300639629
+      },
+      {
+        "feature": "Fusobacterium mortiferum",
+        "importance": 0.004221385344862938
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 2_1_46FAA",
+        "importance": 0.004182011354714632
+      },
+      {
+        "feature": "Pyramidobacter piscolens",
+        "importance": 0.004135584458708763
+      },
+      {
+        "feature": "Propionibacterium propionicum",
+        "importance": 0.004092707764357328
+      },
+      {
+        "feature": "Blautia hydrogenotrophica",
+        "importance": 0.004072791896760464
+      },
+      {
+        "feature": "Bacteroides massiliensis",
+        "importance": 0.004041686654090881
+      },
+      {
+        "feature": "Candidatus Alistipes marseilloanorexicus AP11",
+        "importance": 0.004003468900918961
+      },
+      {
+        "feature": "Bifidobacterium dentium",
+        "importance": 0.004000368993729353
+      },
+      {
+        "feature": "Citrobacter freundii",
+        "importance": 0.003989685792475939
+      },
+      {
+        "feature": "Faecalibacterium prausnitzii",
+        "importance": 0.003960123751312494
+      },
+      {
+        "feature": "Escherichia coli",
+        "importance": 0.00389516050927341
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 4_1_37FAA",
+        "importance": 0.0038175946101546288
+      },
+      {
+        "feature": "Bacteroides oleiciplenus",
+        "importance": 0.003789442591369152
+      },
+      {
+        "feature": "Parabacteroides merdae",
+        "importance": 0.0037454895209521055
+      },
+      {
+        "feature": "Roseburia hominis",
+        "importance": 0.003711904399096966
+      },
+      {
+        "feature": "Eubacterium limosum",
+        "importance": 0.003697001375257969
+      },
+      {
+        "feature": "Lactobacillus mucosae",
+        "importance": 0.0036507269833236933
+      },
+      {
+        "feature": "Bilophila wadsworthia",
+        "importance": 0.0036491984501481056
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 6_1_63FAA",
+        "importance": 0.003646301804110408
+      },
+      {
+        "feature": "Parabacteroides goldsteinii",
+        "importance": 0.0036430240143090487
+      },
+      {
+        "feature": "Bacteroides nordii",
+        "importance": 0.003583288285881281
+      },
+      {
+        "feature": "Streptococcus sanguinis",
+        "importance": 0.0035535770002752542
+      },
+      {
+        "feature": "Eggerthella lenta",
+        "importance": 0.003552332054823637
+      },
+      {
+        "feature": "Bacteroides faecis",
+        "importance": 0.00345824146643281
+      },
+      {
+        "feature": "Megamonas hypermegale",
+        "importance": 0.0034109018743038177
+      },
+      {
+        "feature": "Bacteroides stercoris",
+        "importance": 0.003382994793355465
+      },
+      {
+        "feature": "Haemophilus parainfluenzae",
+        "importance": 0.0033708312548696995
+      },
+      {
+        "feature": "Streptococcus salivarius",
+        "importance": 0.003364914795383811
+      },
+      {
+        "feature": "Dialister invisus",
+        "importance": 0.003355102613568306
+      },
+      {
+        "feature": "Bacteroides sp. 2_1_22",
+        "importance": 0.003296481678262353
+      },
+      {
+        "feature": "Gemella morbillorum",
+        "importance": 0.0032932846806943417
+      },
+      {
+        "feature": "Clostridiaceae bacterium JC118",
+        "importance": 0.003273617010563612
+      },
+      {
+        "feature": "[Eubacterium] infirmum",
+        "importance": 0.003271246561780572
+      },
+      {
+        "feature": "Ruminococcus albus",
+        "importance": 0.0032310138922184706
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 5_1_63FAA",
+        "importance": 0.0032116675283759832
+      },
+      {
+        "feature": "Streptococcus australis",
+        "importance": 0.0032086679711937904
+      },
+      {
+        "feature": "Turicibacter sanguinis",
+        "importance": 0.003206527791917324
+      },
+      {
+        "feature": "Ruminococcus champanellensis",
+        "importance": 0.0031699456740170717
+      },
+      {
+        "feature": "Aggregatibacter segnis",
+        "importance": 0.0031573427841067314
+      },
+      {
+        "feature": "Ruminococcaceae bacterium D16",
+        "importance": 0.0031397249549627304
+      },
+      {
+        "feature": "Burkholderiales bacterium 1_1_47",
+        "importance": 0.0031239711679518223
+      },
+      {
+        "feature": "[Ruminococcus] gnavus",
+        "importance": 0.003092115744948387
+      },
+      {
+        "feature": "Odoribacter splanchnicus",
+        "importance": 0.0030627946835011244
+      },
+      {
+        "feature": "[Clostridium] leptum",
+        "importance": 0.0029956544749438763
+      },
+      {
+        "feature": "Alistipes obesi",
+        "importance": 0.002989700296893716
+      },
+      {
+        "feature": "Clostridiales bacterium 1_7_47FAA",
+        "importance": 0.0029328397940844297
+      },
+      {
+        "feature": "Butyricimonas synergistica",
+        "importance": 0.002916347933933139
+      },
+      {
+        "feature": "Rothia mucilaginosa",
+        "importance": 0.0029140645638108253
+      },
+      {
+        "feature": "Erysipelotrichaceae bacterium 3_1_53",
+        "importance": 0.002908966736868024
+      },
+      {
+        "feature": "Lactobacillus ruminis",
+        "importance": 0.0029056360945105553
+      },
+      {
+        "feature": "Bacteroides uniformis",
+        "importance": 0.002888292074203491
+      },
+      {
+        "feature": "Blautia hansenii",
+        "importance": 0.0028764945454895496
+      },
+      {
+        "feature": "Sutterella wadsworthensis",
+        "importance": 0.0028635282069444656
+      },
+      {
+        "feature": "Lactobacillus rhamnosus",
+        "importance": 0.002860589884221554
+      },
+      {
+        "feature": "Bifidobacterium pseudocatenulatum",
+        "importance": 0.0028422249015420675
+      },
+      {
+        "feature": "Lactobacillus gasseri",
+        "importance": 0.002840883331373334
+      },
+      {
+        "feature": "Parabacteroides distasonis",
+        "importance": 0.002799638081341982
+      },
+      {
+        "feature": "Streptococcus gordonii",
+        "importance": 0.002799299079924822
+      },
+      {
+        "feature": "Methanobrevibacter smithii",
+        "importance": 0.0027950205840170383
+      },
+      {
+        "feature": "Gemella haemolysans",
+        "importance": 0.0027858680114150047
+      },
+      {
+        "feature": "Streptococcus tigurinus",
+        "importance": 0.0027339118532836437
+      },
+      {
+        "feature": "Catenibacterium mitsuokai",
+        "importance": 0.002723029116168618
+      },
+      {
+        "feature": "Eubacterium ramulus",
+        "importance": 0.0027217462193220854
+      },
+      {
+        "feature": "Collinsella intestinalis",
+        "importance": 0.002629058202728629
+      },
+      {
+        "feature": "Lactobacillus casei",
+        "importance": 0.0026234446559101343
+      },
+      {
+        "feature": "Paraprevotella xylaniphila",
+        "importance": 0.0026184956077486277
+      },
+      {
+        "feature": "Bacteroides ovatus",
+        "importance": 0.00257341330870986
+      },
+      {
+        "feature": "Dialister succinatiphilus",
+        "importance": 0.0025356244295835495
+      },
+      {
+        "feature": "Erysipelatoclostridium ramosum",
+        "importance": 0.002516587730497122
+      },
+      {
+        "feature": "Roseburia inulinivorans",
+        "importance": 0.002516191452741623
+      },
+      {
+        "feature": "Klebsiella pneumoniae",
+        "importance": 0.002497113775461912
+      },
+      {
+        "feature": "Alistipes finegoldii",
+        "importance": 0.0024824286811053753
+      },
+      {
+        "feature": "Bifidobacterium animalis",
+        "importance": 0.002415888011455536
+      },
+      {
+        "feature": "[Clostridium] bolteae",
+        "importance": 0.0024127077776938677
+      },
+      {
+        "feature": "Fusobacterium varium",
+        "importance": 0.002371387556195259
+      },
+      {
+        "feature": "Streptococcus mutans",
+        "importance": 0.0023676773998886347
+      },
+      {
+        "feature": "Alistipes onderdonkii",
+        "importance": 0.002356636803597212
+      },
+      {
+        "feature": "Anaerotruncus colihominis",
+        "importance": 0.0023224905598908663
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 3_1_57FAA_CT1",
+        "importance": 0.0023086511064320803
+      },
+      {
+        "feature": "[Eubacterium] dolichum",
+        "importance": 0.002304098103195429
+      },
+      {
+        "feature": "Lactobacillus vaginalis",
+        "importance": 0.00229555438272655
+      },
+      {
+        "feature": "Abiotrophia defectiva",
+        "importance": 0.0022742911241948605
+      },
+      {
+        "feature": "Bacteroides intestinalis",
+        "importance": 0.002263944363221526
+      },
+      {
+        "feature": "Bacteroides vulgatus",
+        "importance": 0.0022408110089600086
+      },
+      {
+        "feature": "Fusobacterium nucleatum",
+        "importance": 0.002229130594059825
+      },
+      {
+        "feature": "[Clostridium] clostridioforme",
+        "importance": 0.002196419984102249
+      },
+      {
+        "feature": "Bacteroides eggerthii",
+        "importance": 0.0021678810007870197
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 8_1_57FAA",
+        "importance": 0.002155250869691372
+      },
+      {
+        "feature": "Lactococcus garvieae",
+        "importance": 0.0021468312479555607
+      },
+      {
+        "feature": "Alistipes senegalensis",
+        "importance": 0.0021317140199244022
+      },
+      {
+        "feature": "Prevotella bivia",
+        "importance": 0.0021241391077637672
+      },
+      {
+        "feature": "Megamonas rupellensis",
+        "importance": 0.0020927132572978735
+      },
+      {
+        "feature": "Desulfovibrio desulfuricans",
+        "importance": 0.002088051987811923
+      },
+      {
+        "feature": "Alistipes putredinis",
+        "importance": 0.0020251767709851265
+      },
+      {
+        "feature": "Anaerostipes caccae",
+        "importance": 0.002023453824222088
+      },
+      {
+        "feature": "Streptococcus macedonicus",
+        "importance": 0.001967562362551689
+      },
+      {
+        "feature": "Bacteroides xylanisolvens",
+        "importance": 0.0019405195489525795
+      },
+      {
+        "feature": "Bifidobacterium bifidum",
+        "importance": 0.0019356932025402784
+      },
+      {
+        "feature": "Bacteroides clarus",
+        "importance": 0.0019214128842577338
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 1_1_57FAA",
+        "importance": 0.001874355599284172
+      },
+      {
+        "feature": "Erysipelotrichaceae bacterium 2_2_44A",
+        "importance": 0.0018742564134299755
+      },
+      {
+        "feature": "Anaerostipes hadrus",
+        "importance": 0.0017944436985999346
+      },
+      {
+        "feature": "Paraprevotella clara",
+        "importance": 0.0017227450152859092
+      },
+      {
+        "feature": "Parasutterella excrementihominis",
+        "importance": 0.0016990809235721827
+      },
+      {
+        "feature": "Acidaminococcus intestini",
+        "importance": 0.0016921255737543106
+      },
+      {
+        "feature": "Alistipes shahii",
+        "importance": 0.0016920964699238539
+      },
+      {
+        "feature": "Ruminococcus callidus",
+        "importance": 0.0016920079942792654
+      },
+      {
+        "feature": "Parvimonas micra",
+        "importance": 0.0016889392863959074
+      },
+      {
+        "feature": "Anaerofustis stercorihominis",
+        "importance": 0.0016829526284709573
+      },
+      {
+        "feature": "[Clostridium] symbiosum",
+        "importance": 0.0016690341290086508
+      },
+      {
+        "feature": "Enorma massiliensis phI",
+        "importance": 0.0016655013896524906
+      },
+      {
+        "feature": "Roseburia intestinalis",
+        "importance": 0.0016011091647669673
+      },
+      {
+        "feature": "Granulicatella adiacens",
+        "importance": 0.001579803298227489
+      },
+      {
+        "feature": "[Eubacterium] rectale",
+        "importance": 0.0015759235247969627
+      },
+      {
+        "feature": "Streptococcus lutetiensis",
+        "importance": 0.0015746642602607608
+      },
+      {
+        "feature": "[Eubacterium] eligens",
+        "importance": 0.0015693792374804616
+      },
+      {
+        "feature": "Haemophilus sputorum",
+        "importance": 0.001569085638038814
+      },
+      {
+        "feature": "[Clostridium] citroniae",
+        "importance": 0.001547290594317019
+      },
+      {
+        "feature": "Lachnospiraceae bacterium 2_1_58FAA",
+        "importance": 0.001533285598270595
+      },
+      {
+        "feature": "Coprococcus eutactus",
+        "importance": 0.001521565834991634
+      },
+      {
+        "feature": "Peptostreptococcus stomatis",
+        "importance": 0.0015197532484307885
+      },
+      {
+        "feature": "Clostridium celatum",
+        "importance": 0.0015171560226008296
+      },
+      {
+        "feature": "Tyzzerella nexilis",
+        "importance": 0.0014716889709234238
+      },
+      {
+        "feature": "Clostridium sp. KLE 1755",
+        "importance": 0.0013979459181427956
+      },
+      {
+        "feature": "Lactobacillus delbrueckii",
+        "importance": 0.0013877119636163116
+      },
+      {
+        "feature": "Enterobacter cloacae",
+        "importance": 0.001374236075207591
+      },
+      {
+        "feature": "[Clostridium] innocuum",
+        "importance": 0.0013566947309300303
+      },
+      {
+        "feature": "Prevotella disiens",
+        "importance": 0.0013557419879361987
+      },
+      {
+        "feature": "Bacteroides caccae",
+        "importance": 0.0013276163954287767
+      },
+      {
+        "feature": "Slackia piriformis",
+        "importance": 0.001271223882213235
+      },
+      {
+        "feature": "Coprococcus sp. ART55/1",
+        "importance": 0.0012700720690190792
+      },
+      {
+        "feature": "Megasphaera micronuciformis",
+        "importance": 0.0012478624703362584
+      },
+      {
+        "feature": "Phascolarctobacterium succinatutens",
+        "importance": 0.0012275995686650276
+      },
+      {
+        "feature": "Bacteroides fragilis",
+        "importance": 0.001222592662088573
+      },
+      {
+        "feature": "Megamonas funiformis",
+        "importance": 0.00121653254609555
+      },
+      {
+        "feature": "Coprobacillus cateniformis",
+        "importance": 0.0011764782248064876
+      },
+      {
+        "feature": "Subdoligranulum sp. 4_3_54A2FAA",
+        "importance": 0.001148465322330594
+      },
+      {
+        "feature": "Campylobacter hominis",
+        "importance": 0.0011347639374434948
+      },
+      {
+        "feature": "Weissella cibaria",
+        "importance": 0.0011062733829021454
+      },
+      {
+        "feature": "Lactobacillus plantarum",
+        "importance": 0.0010725854663178325
+      },
+      {
+        "feature": "Parabacteroides johnsonii",
+        "importance": 0.0010543395765125751
+      },
+      {
+        "feature": "Acidaminococcus fermentans",
+        "importance": 0.0009718768415041268
+      },
+      {
+        "feature": "Bacteroides salyersiae",
+        "importance": 0.0009573831339366734
+      },
+      {
+        "feature": "Streptococcus vestibularis",
+        "importance": 0.0009234180324710906
+      },
+      {
+        "feature": "Enterococcus casseliflavus",
+        "importance": 0.0008548554033041
+      },
+      {
+        "feature": "Oribacterium sinus",
+        "importance": 0.0008043893030844629
+      },
+      {
+        "feature": "Hungatella hathewayi",
+        "importance": 0.0007938617491163313
+      },
+      {
+        "feature": "Porphyromonas asaccharolytica",
+        "importance": 0.0007515867473557591
+      },
+      {
+        "feature": "Lactobacillus fermentum",
+        "importance": 0.0007301823352463543
+      },
+      {
+        "feature": "Atopobium parvulum",
+        "importance": 0.0006292447214946151
+      },
+      {
+        "feature": "Faecalitalea cylindroides",
+        "importance": 0.000600454630330205
+      },
+      {
+        "feature": "Ruminococcus flavefaciens",
+        "importance": 0.0005186285707168281
+      },
+      {
+        "feature": "Streptococcus constellatus",
+        "importance": 0.00048765187966637313
+      },
+      {
+        "feature": "Eubacterium sp. 3_1_31",
+        "importance": 0.00048509088810533285
+      },
+      {
+        "feature": "Enterococcus faecalis",
+        "importance": 0.00046051779645495117
+      },
+      {
+        "feature": "Campylobacter gracilis",
+        "importance": 0.0002829089353326708
+      },
+      {
+        "feature": "Mitsuokella multacida",
+        "importance": 0.00010220111289527267
+      },
+      {
+        "feature": "Oscillibacter sp. KLE 1745",
+        "importance": 9.124163625529036e-05
+      },
+      {
+        "feature": "[Clostridium] spiroforme",
+        "importance": 0.0
+      },
+      {
+        "feature": "Collinsella tanakaei",
+        "importance": 0.0
+      },
+      {
+        "feature": "Erysipelotrichaceae bacterium 21_3",
+        "importance": 0.0
+      },
+      {
+        "feature": "[Eubacterium] brachy",
+        "importance": 0.0
+      },
+      {
+        "feature": "Raoultella ornithinolytica",
+        "importance": 0.0
+      },
+      {
+        "feature": "Corynebacterium durum",
+        "importance": 0.0
+      },
+      {
+        "feature": "Actinomyces oris",
+        "importance": 0.0
+      },
+      {
+        "feature": "Atopobium rimae",
+        "importance": 0.0
+      },
+      {
+        "feature": "Porphyromonas bennonis",
+        "importance": 0.0
+      },
+      {
+        "feature": "Streptococcus pasteurianus",
+        "importance": 0.0
+      },
+      {
+        "feature": "Clostridium sp. ATCC BAA-442",
+        "importance": 0.0
+      },
+      {
+        "feature": "Porphyromonas uenonis",
+        "importance": 0.0
+      },
+      {
+        "feature": "[Enterobacter] aerogenes",
+        "importance": 0.0
+      },
+      {
+        "feature": "Actinomyces johnsonii",
+        "importance": 0.0
+      },
+      {
+        "feature": "Leuconostoc lactis",
+        "importance": 0.0
+      },
+      {
+        "feature": "Finegoldia magna",
+        "importance": 0.0
+      },
+      {
+        "feature": "Streptococcus cristatus",
+        "importance": 0.0
+      },
+      {
+        "feature": "Prevotella timonensis",
+        "importance": 0.0
+      },
+      {
+        "feature": "Alloscardovia omnicolens",
+        "importance": 0.0
+      },
+      {
+        "feature": "Streptococcus intermedius",
+        "importance": 0.0
+      },
+      {
+        "feature": "Erysipelotrichaceae bacterium 5_2_54FAA",
+        "importance": 0.0
+      },
+      {
+        "feature": "Staphylococcus aureus",
+        "importance": 0.0
+      },
+      {
+        "feature": "Peptoniphilus lacrimalis",
+        "importance": 0.0
+      },
+      {
+        "feature": "Olsenella uli",
+        "importance": 0.0
+      },
+      {
+        "feature": "Anaerococcus vaginalis",
+        "importance": 0.0
+      },
+      {
+        "feature": "Weissella confusa",
+        "importance": 0.0
+      },
+      {
+        "feature": "Butyricicoccus pullicaecorum",
+        "importance": 0.0
+      },
+      {
+        "feature": "Klebsiella sp.",
+        "importance": 0.0
+      },
+      {
+        "feature": "Lactobacillus oris",
+        "importance": 0.0
+      },
+      {
+        "feature": "Clostridioides difficile",
+        "importance": 0.0
+      },
+      {
+        "feature": "candidate division TM7 single-cell isolate TM7c",
+        "importance": 0.0
+      },
+      {
+        "feature": "Bacteroides sp. 3_1_19",
+        "importance": 0.0
+      },
+      {
+        "feature": "Megasphaera elsdenii",
+        "importance": 0.0
+      }
+    ],
+    "cumulative_analysis": {
+      "suggested_optimal_k": 51,
+      "recommendations": {
+        "elbow_point": 51,
+        "significant_1pct": 14,
+        "meaningful_0.5pct": 58,
+        "above_mean": 92,
+        "90_percent_threshold": 164
+      },
+      "user_specified_k": 164,
+      "actually_used_k": 164
+    }
+  },
+  "phase2": {
+    "best_estimator": "LogisticRegression",
+    "optimal_features": [
+      "Actinomyces massiliensis",
+      "Veillonella dispar",
+      "Bacteroides plebeius",
+      "[Clostridium] scindens",
+      "Coprococcus comes",
+      "Streptococcus thermophilus",
+      "Prevotella buccae",
+      "Methanobrevibacter sp.",
+      "Bacteroides coprocola",
+      "Pseudoflavonifractor capillosus",
+      "Actinomyces odontolyticus",
+      "Bacteroides coprophilus",
+      "Actinomyces naeslundii",
+      "[Clostridium] methylpentosum",
+      "[Eubacterium] hallii",
+      "Ruminococcus sp. 5_1_39BFAA",
+      "Gordonibacter pamelaeae",
+      "Lachnospiraceae bacterium 1_4_56FAA",
+      "Veillonella parvula",
+      "[Ruminococcus] torques",
+      "Lachnospiraceae bacterium 7_1_58FAA",
+      "Peptostreptococcus sp.",
+      "Alistipes indistinctus",
+      "Rothia dentocariosa",
+      "Fusobacterium periodonticum",
+      "Streptococcus infantarius",
+      "Bifidobacterium breve",
+      "Scardovia wiggsiae",
+      "Bifidobacterium adolescentis",
+      "Dorea longicatena",
+      "Eubacterium ventriosum",
+      "Unknown",
+      "Ruminococcus bromii",
+      "Collinsella aerofaciens",
+      "Gemella sanguinis",
+      "Butyrivibrio crossotus",
+      "Klebsiella oxytoca",
+      "Subdoligranulum variabile",
+      "Dorea formicigenerans",
+      "Prevotella stercorea",
+      "Desulfovibrio piger",
+      "Holdemanella biformis",
+      "Holdemania filiformis",
+      "Blautia obeum",
+      "Streptococcus parasanguinis",
+      "Bacteroides thetaiotaomicron",
+      "Clostridium sp. L2-50",
+      "Bifidobacterium catenulatum",
+      "Lactobacillus salivarius",
+      "Lachnospiraceae bacterium 3_1_46FAA",
+      "Streptococcus anginosus",
+      "Flavonifractor plautii",
+      "Prevotella copri",
+      "Coprococcus catus",
+      "Adlercreutzia equolifaciens",
+      "Streptococcus infantis",
+      "Barnesiella intestinihominis",
+      "Fusobacterium ulcerans",
+      "Lactococcus lactis",
+      "Erysipelotrichaceae bacterium 6_1_45",
+      "Streptococcus mitis",
+      "Clostridium perfringens",
+      "Oxalobacter formigenes",
+      "Enterococcus faecium",
+      "Campylobacter concisus",
+      "Lachnospiraceae bacterium 9_1_43BFAA",
+      "Bifidobacterium longum",
+      "Fusobacterium mortiferum",
+      "Propionibacterium propionicum",
+      "Blautia hydrogenotrophica",
+      "Bacteroides massiliensis",
+      "Bifidobacterium dentium",
+      "Faecalibacterium prausnitzii",
+      "Escherichia coli",
+      "Lachnospiraceae bacterium 4_1_37FAA",
+      "Bacteroides oleiciplenus",
+      "Parabacteroides merdae",
+      "Roseburia hominis",
+      "Bilophila wadsworthia",
+      "Lachnospiraceae bacterium 6_1_63FAA",
+      "Bacteroides nordii",
+      "Streptococcus sanguinis",
+      "Eggerthella lenta",
+      "Bacteroides faecis",
+      "Megamonas hypermegale",
+      "Bacteroides stercoris",
+      "Haemophilus parainfluenzae",
+      "Streptococcus salivarius",
+      "Dialister invisus",
+      "Gemella morbillorum",
+      "Clostridiaceae bacterium JC118",
+      "[Eubacterium] infirmum",
+      "Lachnospiraceae bacterium 5_1_63FAA",
+      "Streptococcus australis",
+      "Turicibacter sanguinis",
+      "Ruminococcus champanellensis",
+      "Aggregatibacter segnis",
+      "Ruminococcaceae bacterium D16",
+      "Burkholderiales bacterium 1_1_47",
+      "[Ruminococcus] gnavus",
+      "Odoribacter splanchnicus",
+      "[Clostridium] leptum",
+      "Alistipes obesi",
+      "Clostridiales bacterium 1_7_47FAA",
+      "Rothia mucilaginosa",
+      "Blautia hansenii",
+      "Bifidobacterium pseudocatenulatum",
+      "Parabacteroides distasonis",
+      "Streptococcus gordonii",
+      "Gemella haemolysans",
+      "Streptococcus tigurinus",
+      "Catenibacterium mitsuokai",
+      "Eubacterium ramulus",
+      "Collinsella intestinalis",
+      "Lactobacillus casei",
+      "Paraprevotella xylaniphila",
+      "Bacteroides ovatus",
+      "Erysipelatoclostridium ramosum",
+      "Roseburia inulinivorans",
+      "Klebsiella pneumoniae",
+      "Alistipes finegoldii",
+      "Bifidobacterium animalis",
+      "Fusobacterium varium",
+      "Streptococcus mutans",
+      "Alistipes onderdonkii",
+      "Anaerotruncus colihominis",
+      "[Eubacterium] dolichum",
+      "Abiotrophia defectiva",
+      "Bacteroides intestinalis",
+      "Bacteroides vulgatus",
+      "Fusobacterium nucleatum",
+      "[Clostridium] clostridioforme"
+    ],
+    "rfecv_summary": {
+      "LogisticRegression": {
+        "n_features": 132,
+        "best_score": 0.6801837450066885
+      },
+      "LinearSVC": {
+        "n_features": 151,
+        "best_score": 0.6598413642655201
+      }
+    }
+  },
+  "final_selected_features": [
+    "Actinomyces massiliensis",
+    "Veillonella dispar",
+    "Bacteroides plebeius",
+    "[Clostridium] scindens",
+    "Coprococcus comes",
+    "Streptococcus thermophilus",
+    "Prevotella buccae",
+    "Methanobrevibacter sp.",
+    "Bacteroides coprocola",
+    "Pseudoflavonifractor capillosus",
+    "Actinomyces odontolyticus",
+    "Bacteroides coprophilus",
+    "Actinomyces naeslundii",
+    "[Clostridium] methylpentosum",
+    "[Eubacterium] hallii",
+    "Ruminococcus sp. 5_1_39BFAA",
+    "Gordonibacter pamelaeae",
+    "Lachnospiraceae bacterium 1_4_56FAA",
+    "Veillonella parvula",
+    "[Ruminococcus] torques",
+    "Lachnospiraceae bacterium 7_1_58FAA",
+    "Peptostreptococcus sp.",
+    "Alistipes indistinctus",
+    "Rothia dentocariosa",
+    "Fusobacterium periodonticum",
+    "Streptococcus infantarius",
+    "Bifidobacterium breve",
+    "Scardovia wiggsiae",
+    "Bifidobacterium adolescentis",
+    "Dorea longicatena",
+    "Eubacterium ventriosum",
+    "Unknown",
+    "Ruminococcus bromii",
+    "Collinsella aerofaciens",
+    "Gemella sanguinis",
+    "Butyrivibrio crossotus",
+    "Klebsiella oxytoca",
+    "Subdoligranulum variabile",
+    "Dorea formicigenerans",
+    "Prevotella stercorea",
+    "Desulfovibrio piger",
+    "Holdemanella biformis",
+    "Holdemania filiformis",
+    "Blautia obeum",
+    "Streptococcus parasanguinis",
+    "Bacteroides thetaiotaomicron",
+    "Clostridium sp. L2-50",
+    "Bifidobacterium catenulatum",
+    "Lactobacillus salivarius",
+    "Lachnospiraceae bacterium 3_1_46FAA",
+    "Streptococcus anginosus",
+    "Flavonifractor plautii",
+    "Prevotella copri",
+    "Coprococcus catus",
+    "Adlercreutzia equolifaciens",
+    "Streptococcus infantis",
+    "Barnesiella intestinihominis",
+    "Fusobacterium ulcerans",
+    "Lactococcus lactis",
+    "Erysipelotrichaceae bacterium 6_1_45",
+    "Streptococcus mitis",
+    "Clostridium perfringens",
+    "Oxalobacter formigenes",
+    "Enterococcus faecium",
+    "Campylobacter concisus",
+    "Lachnospiraceae bacterium 9_1_43BFAA",
+    "Bifidobacterium longum",
+    "Fusobacterium mortiferum",
+    "Propionibacterium propionicum",
+    "Blautia hydrogenotrophica",
+    "Bacteroides massiliensis",
+    "Bifidobacterium dentium",
+    "Faecalibacterium prausnitzii",
+    "Escherichia coli",
+    "Lachnospiraceae bacterium 4_1_37FAA",
+    "Bacteroides oleiciplenus",
+    "Parabacteroides merdae",
+    "Roseburia hominis",
+    "Bilophila wadsworthia",
+    "Lachnospiraceae bacterium 6_1_63FAA",
+    "Bacteroides nordii",
+    "Streptococcus sanguinis",
+    "Eggerthella lenta",
+    "Bacteroides faecis",
+    "Megamonas hypermegale",
+    "Bacteroides stercoris",
+    "Haemophilus parainfluenzae",
+    "Streptococcus salivarius",
+    "Dialister invisus",
+    "Gemella morbillorum",
+    "Clostridiaceae bacterium JC118",
+    "[Eubacterium] infirmum",
+    "Lachnospiraceae bacterium 5_1_63FAA",
+    "Streptococcus australis",
+    "Turicibacter sanguinis",
+    "Ruminococcus champanellensis",
+    "Aggregatibacter segnis",
+    "Ruminococcaceae bacterium D16",
+    "Burkholderiales bacterium 1_1_47",
+    "[Ruminococcus] gnavus",
+    "Odoribacter splanchnicus",
+    "[Clostridium] leptum",
+    "Alistipes obesi",
+    "Clostridiales bacterium 1_7_47FAA",
+    "Rothia mucilaginosa",
+    "Blautia hansenii",
+    "Bifidobacterium pseudocatenulatum",
+    "Parabacteroides distasonis",
+    "Streptococcus gordonii",
+    "Gemella haemolysans",
+    "Streptococcus tigurinus",
+    "Catenibacterium mitsuokai",
+    "Eubacterium ramulus",
+    "Collinsella intestinalis",
+    "Lactobacillus casei",
+    "Paraprevotella xylaniphila",
+    "Bacteroides ovatus",
+    "Erysipelatoclostridium ramosum",
+    "Roseburia inulinivorans",
+    "Klebsiella pneumoniae",
+    "Alistipes finegoldii",
+    "Bifidobacterium animalis",
+    "Fusobacterium varium",
+    "Streptococcus mutans",
+    "Alistipes onderdonkii",
+    "Anaerotruncus colihominis",
+    "[Eubacterium] dolichum",
+    "Abiotrophia defectiva",
+    "Bacteroides intestinalis",
+    "Bacteroides vulgatus",
+    "Fusobacterium nucleatum",
+    "[Clostridium] clostridioforme"
+  ]
+}
