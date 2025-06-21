@@ -27,7 +27,7 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.pipeline import Pipeline
 
 
@@ -49,13 +49,19 @@ class NestedNeuralNetworkClassifier:
         os.makedirs(results_dir, exist_ok=True)
         self.nested_results = {}
         self.final_model = None
+        self.label_encoder = LabelEncoder()
 
     def get_param_grid(self):
         return {
-            "mlp__hidden_layer_sizes": [(100,), (100, 50), (200, 100)],
+            "mlp__hidden_layer_sizes": [
+                (64,),
+                (128,),
+                (128, 64),
+                (256, 128),
+            ],
             "mlp__activation": ["relu", "tanh"],
-            "mlp__alpha": [0.0001, 0.001, 0.01],
-            "mlp__learning_rate_init": [0.001, 0.005],
+            "mlp__alpha": [1e-4, 1e-3],
+            "mlp__learning_rate_init": [0.001, 0.0005],
             "mlp__batch_size": [32, 64],
         }
 
@@ -74,9 +80,11 @@ class NestedNeuralNetworkClassifier:
                 (
                     "mlp",
                     MLPClassifier(
-                        max_iter=500,
+                        max_iter=1000,
                         random_state=self.random_state,
                         early_stopping=True,
+                        n_iter_no_change=20,
+                        validation_fraction=0.1,
                     ),
                 ),
             ]
@@ -101,16 +109,24 @@ class NestedNeuralNetworkClassifier:
         print("=" * 80)
         print("NESTED CROSS-VALIDATION FOR NEURAL NETWORK")
         print("=" * 80)
-        outer_cv = StratifiedKFold(n_splits=self.outer_cv_folds, shuffle=True, random_state=self.random_state)
+
+        # Encode categorical labels to integers for compatibility with sklearn
+        self.label_encoder.fit(y)
+        y_encoded = self.label_encoder.transform(y)
+        outer_cv = StratifiedKFold(
+            n_splits=self.outer_cv_folds,
+            shuffle=True,
+            random_state=self.random_state,
+        )
 
         fold_results = []
         all_y_true = []
         all_y_pred = []
 
-        for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y)):
+        for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y_encoded)):
             print(f"\nOuter CV Fold {fold_idx + 1}/{self.outer_cv_folds}")
             X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-            y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+            y_train, y_test = y_encoded[train_idx], y_encoded[test_idx]
 
             best_model, best_params, inner_score = self.inner_cv_hyperparameter_optimization(X_train, y_train)
 
@@ -123,6 +139,10 @@ class NestedNeuralNetworkClassifier:
             best_model.fit(X_train_np, y_train_np)
             y_pred = best_model.predict(X_test_np)
 
+            # Decode labels back to original for human-readable metrics
+            y_pred_labels = self.label_encoder.inverse_transform(y_pred)
+            y_test_labels = self.label_encoder.inverse_transform(y_test_np)
+
             metrics = {
                 "fold": fold_idx + 1,
                 "best_params": best_params,
@@ -132,8 +152,8 @@ class NestedNeuralNetworkClassifier:
                 "f1_weighted": f1_score(y_test_np, y_pred, average="weighted"),
                 "precision_macro": precision_score(y_test_np, y_pred, average="macro"),
                 "recall_macro": recall_score(y_test_np, y_pred, average="macro"),
-                "classification_report": classification_report(y_test_np, y_pred, output_dict=True),
-                "confusion_matrix": confusion_matrix(y_test_np, y_pred).tolist(),
+                "classification_report": classification_report(y_test_labels, y_pred_labels, output_dict=True),
+                "confusion_matrix": confusion_matrix(y_test_labels, y_pred_labels).tolist(),
             }
 
             try:
@@ -144,8 +164,8 @@ class NestedNeuralNetworkClassifier:
                 metrics["auc_macro"] = None
 
             fold_results.append(metrics)
-            all_y_true.extend(y_test_np.tolist())
-            all_y_pred.extend(y_pred.tolist())
+            all_y_true.extend(y_test_labels.tolist())
+            all_y_pred.extend(y_pred_labels.tolist())
 
         overall = {
             "accuracy": np.mean([f["accuracy"] for f in fold_results]),
@@ -178,15 +198,17 @@ class NestedNeuralNetworkClassifier:
 
     def train_final_model(self, X, y):
         print("\nTraining final model on complete dataset...")
-        best_model, best_params, best_score = self.inner_cv_hyperparameter_optimization(X, y)
+        y_encoded = self.label_encoder.transform(y)
+        best_model, best_params, best_score = self.inner_cv_hyperparameter_optimization(X, y_encoded)
         X_np = X.to_numpy(dtype=np.float64)
-        y_np = np.asarray(y)
+        y_np = y_encoded
         best_model.fit(X_np, y_np)
         self.final_model = {
             "model": best_model,
             "best_params": best_params,
             "cv_score": best_score,
             "n_features": X.shape[1],
+            "classes": self.label_encoder.classes_.tolist(),
         }
         print(f"Final model params: {best_params}")
         print(f"CV F1-score: {best_score:.4f}")

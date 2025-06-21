@@ -41,10 +41,10 @@ RUN_CONFIG = {
     'step3_svm': False,                    # SVM with nested CV
     'step3_knn': False,                    # KNN with nested CV
     'step3_lasso_regression': False,       # Lasso with nested CV
-    'step3_random_forest': True,         # Random Forest with nested CV
+    'step3_random_forest': False,         # Random Forest with nested CV
     'step3_xgboost': False,                # XGBoost with nested CV
     'step3_naive_bayes': False,          # TODO: Implement
-    'step3_neural_network': False,       # MLP Neural Network with nested CV
+    'step3_neural_network': True,       # MLP Neural Network with nested CV
     
     # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
     'step4_cross_validation': False,     # Integrated into nested CV
