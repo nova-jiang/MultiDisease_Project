@@ -32,19 +32,19 @@ BASE_RESULTS_DIR = "results"
 # Pipeline control switches - Set to True/False to enable/disable steps
 RUN_CONFIG = {
     # Step 1: Biological pre-filtering
-    'step1_biological_filtering': True,
+    'step1_biological_filtering': False,
     
     # Step 2: Model-informed feature selection
-    'step2_feature_selection': True,
+    'step2_feature_selection': False,
     
     # Step 3: Individual ML models (nested cross-validation)
     'step3_svm': False,                    # SVM with nested CV
     'step3_knn': False,                    # KNN with nested CV
     'step3_lasso_regression': False,       # Lasso with nested CV
-    'step3_random_forest': False,         # Random Forest with nested CV
+    'step3_random_forest': True,         # Random Forest with nested CV
     'step3_xgboost': False,                # XGBoost with nested CV
     'step3_naive_bayes': False,          # TODO: Implement
-    'step3_neural_network': True,       # MLP Neural Network with nested CV
+    'step3_neural_network': False,       # MLP Neural Network with nested CV
     
     # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
     'step4_cross_validation': False,     # Integrated into nested CV
@@ -137,6 +137,40 @@ def save_pipeline_state(step_name, data=None, features=None, results=None):
     
     print(f"Pipeline state saved: {state_file}")
 
+def save_step1_output(X, y):
+    """Persist Step 1 output so later steps can run independently."""
+    if not RUN_CONFIG.get('save_intermediate_results', True):
+        return
+    output_path = f"{BASE_RESULTS_DIR}/step1_biological_filtering/step1_output.csv"
+    df = X.copy()
+    df['label'] = y
+    df.to_csv(output_path, index=False)
+    print(f"Step 1 data saved to {output_path}")
+
+def load_step1_output():
+    """Load the saved Step 1 dataset if available."""
+    path = f"{BASE_RESULTS_DIR}/step1_biological_filtering/step1_output.csv"
+    if not os.path.exists(path):
+        return None, None, None
+    df = pd.read_csv(path)
+    if 'label' not in df.columns:
+        raise ValueError("Saved Step 1 output missing 'label' column")
+    y = df['label']
+    X = df.drop(columns=['label'])
+    features = X.columns.tolist()
+    print(f"Loaded Step 1 data from {path}")
+    return X, y, features
+
+def load_step2_features():
+    """Load the feature list produced by Step 2."""
+    path = f"{BASE_RESULTS_DIR}/step2_feature_selection/final_selected_features.txt"
+    if not os.path.exists(path):
+        return None
+    with open(path, 'r') as f:
+        features = [line.strip() for line in f if line.strip()]
+    print(f"Loaded Step 2 features from {path}")
+    return features
+
 # =============================================================================
 # PIPELINE STEPS
 # =============================================================================
@@ -168,6 +202,9 @@ def run_step_1(data_path):
         'n_selected_features': len(selected_features),
         'parameters_used': STEP1_PARAMS
     })
+
+    # Persist dataset for future runs
+    save_step1_output(X_filtered, y)
     
     print(f"Step 1 completed: {len(selected_features)} features selected")
     return X_filtered, y, selected_features, results_df
@@ -178,7 +215,7 @@ def run_step_2(X_step1, y, features_step1):
     """
     if not RUN_CONFIG['step2_feature_selection']:
         print("Step 2: SKIPPED (disabled in configuration)")
-        return features_step1, None
+        return None, None
     
     print("\n" + "="*60)
     print("STEP 2: MODEL-INFORMED FEATURE SELECTION")
@@ -392,11 +429,21 @@ def main():
         X_step1, y, features_step1, results_step1 = run_step_1(DATA_PATH)
         
         if X_step1 is None:
-            print("Step 1 was skipped or failed. Cannot proceed.")
-            return
+            # Attempt to load previous Step 1 output
+            X_step1, y, features_step1 = load_step1_output()
+            if X_step1 is None:
+                print("Step 1 was skipped and no saved output found. Cannot proceed.")
+                return
         
         # Step 2: Model-informed feature selection
         features_step2, selector_step2 = run_step_2(X_step1, y, features_step1)
+
+        if not RUN_CONFIG['step2_feature_selection'] and features_step2 is None:
+            # Load previously saved feature list
+            features_step2 = load_step2_features()
+            if features_step2 is None:
+                print("Step 2 was skipped and no saved features found. Cannot proceed.")
+                return
         
         # Step 3: Machine learning models
         model_results = run_step_3_models(X_step1, y, features_step2)
