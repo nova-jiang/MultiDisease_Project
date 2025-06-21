@@ -40,7 +40,7 @@ def run_mrmr_feature_selection(
         feature count.
     """
     if n_features_list is None:
-        n_features_list = [50]
+        n_features_list = [100]
 
     os.makedirs(results_dir, exist_ok=True)
 
@@ -54,6 +54,8 @@ def run_mrmr_feature_selection(
     for k in n_features_list:
         k = min(k, X.shape[1])
         idx = MRMR.mrmr(X_disc, y_array, mode="index", n_selected_features=k)
+        # ``mrmr`` may return a float array; ensure integer indexing
+        idx = np.asarray(idx, dtype=int)
         feats = X.columns[idx].tolist()
 
         # Simple logistic regression evaluation (5-fold stratified CV)
@@ -67,6 +69,16 @@ def run_mrmr_feature_selection(
         )
 
         results_summary.append({"n_features": k, "score": scores.mean(), "features": feats})
+
+    # Identify the best performing feature set
+    best = max(results_summary, key=lambda x: x["score"])
+    selected_features = best["features"]
+
+    # Save results summary
+    summary_df = pd.DataFrame(
+        [{"n_features": r["n_features"], "f1_macro": r["score"]} for r in results_summary]
+    )
+    summary_df.to_csv(os.path.join(results_dir, "mrmr_feature_set_scores.csv"), index=False)
 
     # Identify the best performing feature set
     best = max(results_summary, key=lambda x: x["score"])
