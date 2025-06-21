@@ -9,7 +9,7 @@ from skfeature.function.information_theoretical_based import MRMR
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 
 
 def run_mrmr_feature_selection(
@@ -66,10 +66,10 @@ def run_mrmr_feature_selection(
         print(f"Selected features: {feats[:5]}{'...' if len(feats) > 5 else ''}")
 
         # Simple logistic regression evaluation (5-fold stratified CV)
-        print("Running logistic regression with 5-fold stratified cross-validation...")
+        print("Running SVC...")
         pipeline = Pipeline([
             ("scaler", StandardScaler()),
-            ("clf", LogisticRegression(max_iter=1000, multi_class="multinomial")),
+            ("clf", SVC(kernel="rbf", probability=True, random_state=42)),
         ])
         cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
         scores = cross_val_score(
