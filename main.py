@@ -7,6 +7,10 @@ import sys
 import json
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
 from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
@@ -21,6 +25,7 @@ from XGBoost_model import run_xgboost_nested_cv
 from lasso_model import run_lasso_nested_cv
 from random_forest import run_random_forest_nested_cv
 from neural_network_model import run_neural_network_nested_cv
+from mrmr_feature_selection import run_mrmr_feature_selection
 
 # =============================================================================
 # CONFIGURATION SECTION
@@ -41,7 +46,7 @@ RUN_CONFIG = {
     'step3_svm': False,                    # SVM with nested CV
     'step3_knn': False,                    # KNN with nested CV
     'step3_lasso_regression': False,       # Lasso with nested CV
-    'step3_random_forest': False,         # Random Forest with nested CV
+    'step3_random_forest': True,         # Random Forest with nested CV
     'step3_xgboost': False,                # XGBoost with nested CV
     'step3_naive_bayes': False,          # TODO: Implement
     'step3_neural_network': True,       # MLP Neural Network with nested CV
@@ -68,7 +73,8 @@ STEP2_PARAMS = {
     'xgb_top_k': 164,              # Number of features to select
     'cv_folds': 5,                 # Cross-validation folds
     'random_state': 42,            # Random seed
-    'phases': ['XGBoost_ranking', 'RFECV']  # Two-phase approach
+    'phases': ['XGBoost_ranking', 'RFECV'],  # Two-phase approach
+    'mrmr_k': 50                  # Number of features for mRMR
 }
 
 # =============================================================================
@@ -171,6 +177,16 @@ def load_step2_features():
     print(f"Loaded Step 2 features from {path}")
     return features
 
+def load_mrmr_features():
+    """Load the feature list produced by the mRMR selection."""
+    path = f"{BASE_RESULTS_DIR}/step2_feature_selection/mrmr/mrmr_selected_features.txt"
+    if not os.path.exists(path):
+        return None
+    with open(path, 'r') as f:
+        features = [line.strip() for line in f if line.strip()]
+    print(f"Loaded mRMR features from {path}")
+    return features
+
 # =============================================================================
 # PIPELINE STEPS
 # =============================================================================
@@ -215,7 +231,7 @@ def run_step_2(X_step1, y, features_step1):
     """
     if not RUN_CONFIG['step2_feature_selection']:
         print("Step 2: SKIPPED (disabled in configuration)")
-        return None, None
+        return None, None, None
     
     print("\n" + "="*60)
     print("STEP 2: MODEL-INFORMED FEATURE SELECTION")
@@ -229,6 +245,11 @@ def run_step_2(X_step1, y, features_step1):
     results_dir = f"{BASE_RESULTS_DIR}/step2_feature_selection"
     selected_features, selector = run_step2(X_step1, y, results_dir)
 
+    # mRMR feature selection
+    mrmr_dir = os.path.join(results_dir, "mrmr")
+    mrmr_k = STEP2_PARAMS.get('mrmr_k', 50)
+    mrmr_features = run_mrmr_feature_selection(X_step1, y, n_features=mrmr_k, results_dir=mrmr_dir)
+
     save_pipeline_state('step2', X_step1[selected_features], selected_features, {
         'n_input_features': len(features_step1),
         'n_selected_features': len(selected_features),
@@ -236,15 +257,23 @@ def run_step_2(X_step1, y, features_step1):
         'phases_completed': ['Phase 1: XGBoost + Cumulative Analysis', 'Phase 2: RFECV']
     })
     
-    print(f"Step 2 completed: {len(selected_features)} features selected")
-    return selected_features, selector
+    save_pipeline_state('step2_mrmr', X_step1[mrmr_features], mrmr_features, {
+        'n_input_features': len(features_step1),
+        'n_selected_features': len(mrmr_features),
+        'method': 'mRMR',
+        'parameters_used': {'n_features': mrmr_k}
+    })
 
-def run_step_3_models(X_final, y, final_features):
+    print(f"Step 2 completed: {len(selected_features)} features selected")
+    print(f"mRMR selected: {len(mrmr_features)} features")
+    return selected_features, mrmr_features, selector
+
+def run_step_3_models(X_final, y, final_features, feature_set_name="default"):
     """
     Step 3: Train individual ML models with nested cross-validation
     """
     print("\n" + "="*60)
-    print("STEP 3: MACHINE LEARNING MODELS (NESTED CV)")
+    print(f"STEP 3: MACHINE LEARNING MODELS (NESTED CV) - {feature_set_name}")
     print("="*60)
     
     # Get the final dataset
@@ -280,7 +309,7 @@ def run_step_3_models(X_final, y, final_features):
         
         try:
             if model_name == 'svm_nested_cv':
-                results_dir = f"{BASE_RESULTS_DIR}/step3_models/svm_nested"
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/{feature_set_name}_svm_nested"
                 nested_results, classifier = run_svm_nested_cv(X_model_ready, y, results_dir)
                 
                 model_results[model_name] = {
@@ -292,7 +321,7 @@ def run_step_3_models(X_final, y, final_features):
                 }
                 
             elif model_name == 'knn_nested_cv':
-                results_dir = f"{BASE_RESULTS_DIR}/step3_models/knn_nested"
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/{feature_set_name}_knn_nested"
                 nested_results, classifier = run_knn_nested_cv(X_model_ready, y, results_dir)
                 
                 model_results[model_name] = {
@@ -304,7 +333,7 @@ def run_step_3_models(X_final, y, final_features):
                 }
             
             elif model_name == 'xgboost':
-                results_dir = f"{BASE_RESULTS_DIR}/step3_models/xgboost_nested"
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/{feature_set_name}_xgboost_nested"
                 nested_results, classifier = run_xgboost_nested_cv(X_model_ready, y, results_dir)
             
                 model_results[model_name] = {
@@ -316,7 +345,7 @@ def run_step_3_models(X_final, y, final_features):
                 }
 
             elif model_name == 'random_forest':
-                results_dir = f"{BASE_RESULTS_DIR}/step3_models/random_forest_nested"
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/{feature_set_name}_random_forest_nested"
                 nested_results, classifier = run_random_forest_nested_cv(X_model_ready, y, results_dir)
 
                 model_results[model_name] = {
@@ -328,7 +357,7 @@ def run_step_3_models(X_final, y, final_features):
                 }
 
             elif model_name == 'neural_network':
-                results_dir = f"{BASE_RESULTS_DIR}/step3_models/neural_network_nested"
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/{feature_set_name}_neural_network_nested"
                 nested_results, classifier = run_neural_network_nested_cv(X_model_ready, y, results_dir)
 
                 model_results[model_name] = {
@@ -340,7 +369,7 @@ def run_step_3_models(X_final, y, final_features):
                 }
 
             elif model_name == 'lasso_regression':
-                results_dir = f"{BASE_RESULTS_DIR}/step3_models/lasso_nested"
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/{feature_set_name}_lasso_nested"
                 nested_results, classifier = run_lasso_nested_cv(X_model_ready, y, results_dir)
             
                 model_results[model_name] = {
@@ -366,7 +395,7 @@ def run_step_3_models(X_final, y, final_features):
                 'error': str(e)
             }
     
-    save_pipeline_state('step3', X_model_ready, final_features, {
+    save_pipeline_state(f'step3_{feature_set_name}', X_model_ready, final_features, {
         'models_run': models_to_run,
         'model_results': model_results,
         'completed_models': [name for name, result in model_results.items() 
@@ -383,8 +412,30 @@ def run_step_3_models(X_final, y, final_features):
         for model_name in completed_models:
             f1_score = model_results[model_name]['best_f1_macro']
             print(f"    {model_name}: {f1_score:.4f}")
-    
+
     return model_results
+
+def visualize_feature_method_comparison(results_a, results_b, method_a, method_b):
+    """Create bar plots comparing feature selection methods for RF and NN."""
+    models = ['random_forest', 'neural_network']
+    for model in models:
+        if (model not in results_a) or (model not in results_b):
+            continue
+        if results_a[model]['status'] != 'completed' or results_b[model]['status'] != 'completed':
+            continue
+        data = pd.DataFrame({
+            'method': [method_a, method_b],
+            'f1_macro': [results_a[model]['best_f1_macro'], results_b[model]['best_f1_macro']]
+        })
+        plt.figure(figsize=(6,4))
+        sns.barplot(data=data, x='method', y='f1_macro')
+        plt.title(f'{model} F1-macro by Feature Selection')
+        plt.ylabel('F1-macro')
+        plt.xlabel('Feature Selection Method')
+        out_path = f"{BASE_RESULTS_DIR}/step3_models/{model}_feature_comparison.png"
+        plt.tight_layout()
+        plt.savefig(out_path, dpi=300)
+        plt.close()
 
 def run_step_4_evaluation(model_results):
     """
@@ -436,17 +487,22 @@ def main():
                 return
         
         # Step 2: Model-informed feature selection
-        features_step2, selector_step2 = run_step_2(X_step1, y, features_step1)
+        features_step2, mrmr_features, selector_step2 = run_step_2(X_step1, y, features_step1)
 
         if not RUN_CONFIG['step2_feature_selection'] and features_step2 is None:
-            # Load previously saved feature list
             features_step2 = load_step2_features()
             if features_step2 is None:
                 print("Step 2 was skipped and no saved features found. Cannot proceed.")
                 return
+        if mrmr_features is None:
+            mrmr_features = load_mrmr_features()
         
         # Step 3: Machine learning models
-        model_results = run_step_3_models(X_step1, y, features_step2)
+        model_results_rfecv = run_step_3_models(X_step1, y, features_step2, feature_set_name='xgb_rfecv')
+        model_results_mrmr = run_step_3_models(X_step1, y, mrmr_features, feature_set_name='mrmr')
+        visualize_feature_method_comparison(model_results_rfecv, model_results_mrmr,
+                                            'XGB+RFECV', 'mRMR')
+        model_results = {'xgb_rfecv': model_results_rfecv, 'mrmr': model_results_mrmr}
         
         # Step 4: Evaluation
         evaluation_results = run_step_4_evaluation(model_results)
@@ -456,7 +512,8 @@ def main():
         print("="*80)
         print(f"Original features: {X_step1.shape[1] if X_step1 is not None else 'N/A'}")
         print(f"After Step 1: {len(features_step1) if features_step1 else 'N/A'}")
-        print(f"After Step 2: {len(features_step2) if features_step2 else 'N/A'}")
+        print(f"After Step 2 (XGB+RFECV): {len(features_step2) if features_step2 else 'N/A'}")
+        print(f"After mRMR: {len(mrmr_features) if mrmr_features else 'N/A'}")
         print(f"Models run: {len(model_results)}")
         print(f"Results saved in: {BASE_RESULTS_DIR}")
         print("="*80)
@@ -467,10 +524,12 @@ def main():
             'original_features': X_step1.shape[1] if X_step1 is not None else None,
             'features_after_step1': len(features_step1) if features_step1 else None,
             'features_after_step2': len(features_step2) if features_step2 else None,
-            'final_features': features_step2 if features_step2 else None,
-            'models_run': list(model_results.keys()) if model_results else [],
+            'features_after_mrmr': len(mrmr_features) if mrmr_features else None,
+            'final_features_xgb_rfecv': features_step2 if features_step2 else None,
+            'final_features_mrmr': mrmr_features if mrmr_features else None,
+            'models_run': list(model_results['xgb_rfecv'].keys()) if model_results else [],
             'configuration_used': RUN_CONFIG,
-            'step2_method': '2-phase: XGBoost + Cumulative Analysis → RFECV'
+            'step2_method': 'XGBoost+RFECV and mRMR'
         }
         
         with open(f"{BASE_RESULTS_DIR}/final_summary.json", 'w') as f:
