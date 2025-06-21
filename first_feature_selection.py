@@ -3,6 +3,8 @@ import numpy as np
 from scipy import stats
 from scipy.stats import kruskal
 from statsmodels.stats.multitest import multipletests
+import matplotlib
+matplotlib.use('Agg')   # non-interactive backend that doesn’t require Tcl/Tk
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler

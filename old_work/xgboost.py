@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import shap
+import matplotlib
+matplotlib.use('Agg')   # non-interactive backend that doesn’t require Tcl/Tk
 import matplotlib.pyplot as plt
 import seaborn as sns
 from xgboost import XGBClassifier

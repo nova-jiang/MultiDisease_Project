@@ -19,6 +19,8 @@ from SVM_model import run_svm_nested_cv
 from kNN_model import run_knn_nested_cv
 from XGBoost_model import run_xgboost_nested_cv
 from lasso_model import run_lasso_nested_cv
+from random_forest import run_random_forest_nested_cv
+from neural_network_model import run_neural_network_nested_cv
 
 # =============================================================================
 # CONFIGURATION SECTION
@@ -36,13 +38,13 @@ RUN_CONFIG = {
     'step2_feature_selection': True,
     
     # Step 3: Individual ML models (nested cross-validation)
-    'step3_svm': True,                    # SVM with nested CV
-    'step3_knn': True,                    # KNN with nested CV
-    'step3_lasso_regression': True,       # Lasso with nested CV
-    'step3_random_forest': False,         # TODO: Implement
-    'step3_xgboost': True,                # XGBoost with nested CV
+    'step3_svm': False,                    # SVM with nested CV
+    'step3_knn': False,                    # KNN with nested CV
+    'step3_lasso_regression': False,       # Lasso with nested CV
+    'step3_random_forest': False,         # Random Forest with nested CV
+    'step3_xgboost': False,                # XGBoost with nested CV
     'step3_naive_bayes': False,          # TODO: Implement
-    'step3_neural_network': False,       # TODO: Implement
+    'step3_neural_network': True,       # MLP Neural Network with nested CV
     
     # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
     'step4_cross_validation': False,     # Integrated into nested CV
@@ -268,6 +270,30 @@ def run_step_3_models(X_final, y, final_features):
                 results_dir = f"{BASE_RESULTS_DIR}/step3_models/xgboost_nested"
                 nested_results, classifier = run_xgboost_nested_cv(X_model_ready, y, results_dir)
             
+                model_results[model_name] = {
+                    'status': 'completed',
+                    'type': 'nested_cross_validation',
+                    'performance': nested_results['overall_metrics'],
+                    'best_f1_macro': nested_results['overall_metrics']['f1_macro'],
+                    'results_dir': results_dir
+                }
+
+            elif model_name == 'random_forest':
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/random_forest_nested"
+                nested_results, classifier = run_random_forest_nested_cv(X_model_ready, y, results_dir)
+
+                model_results[model_name] = {
+                    'status': 'completed',
+                    'type': 'nested_cross_validation',
+                    'performance': nested_results['overall_metrics'],
+                    'best_f1_macro': nested_results['overall_metrics']['f1_macro'],
+                    'results_dir': results_dir
+                }
+
+            elif model_name == 'neural_network':
+                results_dir = f"{BASE_RESULTS_DIR}/step3_models/neural_network_nested"
+                nested_results, classifier = run_neural_network_nested_cv(X_model_ready, y, results_dir)
+
                 model_results[model_name] = {
                     'status': 'completed',
                     'type': 'nested_cross_validation',
