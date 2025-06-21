@@ -1,0 +1,10 @@
+{
+  "best_params": {
+    "class_weight": null,
+    "max_depth": null,
+    "max_features": "sqrt",
+    "n_estimators": 300
+  },
+  "cv_score": 0.6515193560609962,
+  "n_features": 750
+}

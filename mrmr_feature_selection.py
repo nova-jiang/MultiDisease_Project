@@ -54,8 +54,8 @@ def run_mrmr_feature_selection(
     for k in n_features_list:
         k = min(k, X.shape[1])
         idx = MRMR.mrmr(X_disc, y_array, mode="index", n_selected_features=k)
-        # ``mrmr`` may return a float array; ensure integer indexing
-        idx = np.asarray(idx, dtype=int)
+        # ``mrmr`` may return float values and a 2D shape; ensure 1D integer array
+        idx = np.asarray(idx).astype(int).ravel()
         feats = X.columns[idx].tolist()
 
         # Simple logistic regression evaluation (5-fold stratified CV)
