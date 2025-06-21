@@ -1,5 +1,5 @@
 {
-  "error_time": "2025-06-21T10:35:08.488480",
-  "error_message": "Can't find a usable init.tcl in the following directories: \n    {C:\\Users\\noahl\\AppData\\Local\\Programs\\Python\\Python312\\tcl\\tcl8.6\\init.tcl} C:/Users/noahl/AppData/Local/Programs/Python/Python312/lib/tcl8.6 C:/Users/noahl/AppData/Local/Programs/Python/lib/tcl8.6 C:/Users/noahl/AppData/Local/Programs/lib/tcl8.6 C:/Users/noahl/AppData/Local/Programs/Python/library C:/Users/noahl/AppData/Local/Programs/library C:/Users/noahl/AppData/Local/Programs/tcl8.6.13/library C:/Users/noahl/AppData/Local/tcl8.6.13/library\n\n\n\nThis probably means that Tcl wasn't installed properly.\n",
-  "error_type": "TclError"
+  "error_time": "2025-06-21T20:38:20.878021",
+  "error_message": "arrays used as indices must be of integer (or boolean) type",
+  "error_type": "IndexError"
 }

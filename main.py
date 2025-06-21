@@ -40,7 +40,7 @@ RUN_CONFIG = {
     'step1_biological_filtering': False,
     
     # Step 2: Model-informed feature selection
-    'step2_feature_selection': False,
+    'step2_feature_selection': True,
     
     # Step 3: Individual ML models (nested cross-validation)
     'step3_svm': False,                    # SVM with nested CV
@@ -59,7 +59,7 @@ RUN_CONFIG = {
     'save_intermediate_results': True,
     'generate_visualizations': True,
     'verbose': True,
-    'feature_selection_method': 'xgb_rfecv'  # or 'mrmr'
+    'feature_selection_method': 'mrmr'  # !!! or 'mrmr', 'xgb_rfecv' !!!
 }
 
 # Step 1 parameters
