@@ -1,6 +1,6 @@
 {
   "step": "step3",
-  "timestamp": "2025-06-20T05:43:11.316872",
+  "timestamp": "2025-06-21T19:10:19.736380",
   "data_shape": [
     1085,
     132
@@ -142,54 +142,32 @@
   ],
   "results_summary": {
     "models_run": [
-      "svm_nested_cv",
-      "knn_nested_cv"
+      "neural_network"
     ],
     "model_results": {
-      "svm_nested_cv": {
+      "neural_network": {
         "status": "completed",
         "type": "nested_cross_validation",
         "performance": {
-          "accuracy": 0.7382488479262673,
-          "accuracy_std": 0.027863993470656174,
-          "f1_macro": 0.7482405703162212,
-          "f1_macro_std": 0.02614133568584487,
-          "f1_weighted": 0.7364412966264066,
-          "f1_weighted_std": 0.025549437474628067,
-          "precision_macro": 0.7578141928808544,
-          "precision_macro_std": 0.0175593915824932,
-          "recall_macro": 0.7487146812772476,
-          "recall_macro_std": 0.030519896039175626,
-          "auc_macro": 0.9326914942625116,
-          "auc_macro_std": 0.008756670746816745
+          "accuracy": 0.7179723502304147,
+          "accuracy_std": 0.03237634667327241,
+          "f1_macro": 0.7266842441202966,
+          "f1_macro_std": 0.03294102663564905,
+          "f1_weighted": 0.7151205827207727,
+          "f1_weighted_std": 0.03311876662065179,
+          "precision_macro": 0.7298587941173853,
+          "precision_macro_std": 0.03252341417098828,
+          "recall_macro": 0.7292363278291167,
+          "recall_macro_std": 0.033803491715221116,
+          "auc_macro": 0.9205196580534347,
+          "auc_macro_std": 0.007575267769438613
         },
-        "best_f1_macro": 0.7482405703162212,
-        "results_dir": "results/step3_models/svm_nested"
-      },
-      "knn_nested_cv": {
-        "status": "completed",
-        "type": "nested_cross_validation",
-        "performance": {
-          "accuracy": 0.6718894009216589,
-          "accuracy_std": 0.023927658959902644,
-          "f1_macro": 0.6800287654195845,
-          "f1_macro_std": 0.023833250750093005,
-          "f1_weighted": 0.6692431646441355,
-          "f1_weighted_std": 0.023362504309306007,
-          "precision_macro": 0.6902221185181252,
-          "precision_macro_std": 0.022449902026056345,
-          "recall_macro": 0.680670184652157,
-          "recall_macro_std": 0.02576509086565224,
-          "auc_macro": 0.8895180634542083,
-          "auc_macro_std": 0.009538634894055549
-        },
-        "best_f1_macro": 0.6800287654195845,
-        "results_dir": "results/step3_models/knn_nested"
+        "best_f1_macro": 0.7266842441202966,
+        "results_dir": "results/step3_models/neural_network_nested"
       }
     },
     "completed_models": [
-      "svm_nested_cv",
-      "knn_nested_cv"
+      "neural_network"
     ]
   }
 }

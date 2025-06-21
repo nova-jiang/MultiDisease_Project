@@ -6,6 +6,8 @@ import os
 import json
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')   # non-interactive backend that doesn’t require Tcl/Tk
 import matplotlib.pyplot as plt
 import seaborn as sns
 
