@@ -17,6 +17,8 @@ from sklearn.metrics import (classification_report, confusion_matrix,
                            accuracy_score, f1_score, precision_score, recall_score,
                            roc_auc_score)
 
+import matplotlib
+matplotlib.use('Agg')   # non-interactive backend that doesn’t require Tcl/Tk
 import matplotlib.pyplot as plt
 import seaborn as sns
 
