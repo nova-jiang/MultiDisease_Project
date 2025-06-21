@@ -1,10 +1,12 @@
 {
-  "pipeline_completion_time": "2025-06-21T21:54:34.613161",
-  "status": "completed",
-  "original_features": 269,
-  "features_after_step1": 269,
-  "features_after_step2": 200,
-  "final_features": [
+  "step": "step2_mrmr",
+  "timestamp": "2025-06-21T21:50:23.519963",
+  "data_shape": [
+    1085,
+    200
+  ],
+  "n_features": 200,
+  "features": [
     "Veillonella dispar",
     "Unknown",
     "Dorea longicatena",
@@ -206,26 +208,20 @@
     "Porphyromonas asaccharolytica",
     "Lactobacillus rhamnosus"
   ],
-  "models_run": [
-    "random_forest",
-    "neural_network"
-  ],
-  "configuration_used": {
-    "step1_biological_filtering": false,
-    "step2_feature_selection": true,
-    "step3_svm": false,
-    "step3_knn": false,
-    "step3_lasso_regression": false,
-    "step3_random_forest": true,
-    "step3_xgboost": false,
-    "step3_naive_bayes": false,
-    "step3_neural_network": true,
-    "step4_cross_validation": false,
-    "step4_final_evaluation": true,
-    "save_intermediate_results": true,
-    "generate_visualizations": true,
-    "verbose": true,
-    "feature_selection_method": "mrmr"
-  },
-  "step2_method": "mrmr"
+  "results_summary": {
+    "n_input_features": 269,
+    "n_selected_features": 200,
+    "method": "mRMR",
+    "parameters_used": {
+      "candidates": [
+        10,
+        20,
+        50,
+        100,
+        150,
+        200,
+        250
+      ]
+    }
+  }
 }

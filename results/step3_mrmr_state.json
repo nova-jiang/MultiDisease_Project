@@ -1,10 +1,12 @@
 {
-  "pipeline_completion_time": "2025-06-21T21:54:34.613161",
-  "status": "completed",
-  "original_features": 269,
-  "features_after_step1": 269,
-  "features_after_step2": 200,
-  "final_features": [
+  "step": "step3_mrmr",
+  "timestamp": "2025-06-21T21:54:34.609092",
+  "data_shape": [
+    1085,
+    200
+  ],
+  "n_features": 200,
+  "features": [
     "Veillonella dispar",
     "Unknown",
     "Dorea longicatena",
@@ -206,26 +208,56 @@
     "Porphyromonas asaccharolytica",
     "Lactobacillus rhamnosus"
   ],
-  "models_run": [
-    "random_forest",
-    "neural_network"
-  ],
-  "configuration_used": {
-    "step1_biological_filtering": false,
-    "step2_feature_selection": true,
-    "step3_svm": false,
-    "step3_knn": false,
-    "step3_lasso_regression": false,
-    "step3_random_forest": true,
-    "step3_xgboost": false,
-    "step3_naive_bayes": false,
-    "step3_neural_network": true,
-    "step4_cross_validation": false,
-    "step4_final_evaluation": true,
-    "save_intermediate_results": true,
-    "generate_visualizations": true,
-    "verbose": true,
-    "feature_selection_method": "mrmr"
-  },
-  "step2_method": "mrmr"
+  "results_summary": {
+    "models_run": [
+      "random_forest",
+      "neural_network"
+    ],
+    "model_results": {
+      "random_forest": {
+        "status": "completed",
+        "type": "nested_cross_validation",
+        "performance": {
+          "accuracy": 0.6820276497695852,
+          "accuracy_std": 0.020192536682218105,
+          "f1_macro": 0.6883536854751575,
+          "f1_macro_std": 0.01601300821279584,
+          "f1_weighted": 0.6786337279881192,
+          "f1_weighted_std": 0.0180844760274927,
+          "precision_macro": 0.6986840980443473,
+          "precision_macro_std": 0.0143672297934342,
+          "recall_macro": 0.690872881213284,
+          "recall_macro_std": 0.018957634299210335,
+          "auc_macro": 0.9044548473917473,
+          "auc_macro_std": 0.006372120635497539
+        },
+        "best_f1_macro": 0.6883536854751575,
+        "results_dir": "results/step3_models/mrmr_random_forest_nested"
+      },
+      "neural_network": {
+        "status": "completed",
+        "type": "nested_cross_validation",
+        "performance": {
+          "accuracy": 0.6866359447004609,
+          "accuracy_std": 0.044105017931817134,
+          "f1_macro": 0.6953040128182433,
+          "f1_macro_std": 0.04178481973416783,
+          "f1_weighted": 0.683673622146993,
+          "f1_weighted_std": 0.04404615195234408,
+          "precision_macro": 0.6985480506104728,
+          "precision_macro_std": 0.04438415541981504,
+          "recall_macro": 0.6993085559427024,
+          "recall_macro_std": 0.042619002887988755,
+          "auc_macro": 0.9077108352940089,
+          "auc_macro_std": 0.009862378008516089
+        },
+        "best_f1_macro": 0.6953040128182433,
+        "results_dir": "results/step3_models/mrmr_neural_network_nested"
+      }
+    },
+    "completed_models": [
+      "random_forest",
+      "neural_network"
+    ]
+  }
 }
