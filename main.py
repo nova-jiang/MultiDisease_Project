@@ -58,7 +58,8 @@ RUN_CONFIG = {
     # Additional options
     'save_intermediate_results': True,
     'generate_visualizations': True,
-    'verbose': True
+    'verbose': True,
+    'feature_selection_method': 'xgb_rfecv'  # or 'mrmr'
 }
 
 # Step 1 parameters
@@ -74,7 +75,8 @@ STEP2_PARAMS = {
     'cv_folds': 5,                 # Cross-validation folds
     'random_state': 42,            # Random seed
     'phases': ['XGBoost_ranking', 'RFECV'],  # Two-phase approach
-    'mrmr_k': 50                  # Number of features for mRMR
+    'mrmr_k': 50,                 # Default number of features for mRMR
+    'mrmr_candidates': [10, 20, 50, 100, 150, 200, 250]
 }
 
 # =============================================================================
@@ -238,35 +240,49 @@ def run_step_2(X_step1, y, features_step1):
     print("="*60)
     
     if len(features_step1) < 10:
-        print(f"WARNING: Only {len(features_step1)} features from Step 1. Consider relaxing Step 1 parameters.")
-        return features_step1, None
-    
-    # Run feature selection (now only 2 phases)
+        print(
+            f"WARNING: Only {len(features_step1)} features from Step 1. Consider relaxing Step 1 parameters."
+        )
+        return features_step1, None, None
+
+    method = RUN_CONFIG.get('feature_selection_method', 'xgb_rfecv').lower()
     results_dir = f"{BASE_RESULTS_DIR}/step2_feature_selection"
-    selected_features, selector = run_step2(X_step1, y, results_dir)
 
-    # mRMR feature selection
-    mrmr_dir = os.path.join(results_dir, "mrmr")
-    mrmr_k = STEP2_PARAMS.get('mrmr_k', 50)
-    mrmr_features = run_mrmr_feature_selection(X_step1, y, n_features=mrmr_k, results_dir=mrmr_dir)
+    if method == 'mrmr':
+        mrmr_dir = os.path.join(results_dir, 'mrmr')
+        candidates = STEP2_PARAMS.get('mrmr_candidates', [STEP2_PARAMS.get('mrmr_k', 50)])
+        selected_features = run_mrmr_feature_selection(
+            X_step1, y, n_features_list=candidates, results_dir=mrmr_dir
+        )
+        selector = None
+        save_pipeline_state(
+            'step2_mrmr',
+            X_step1[selected_features],
+            selected_features,
+            {
+                'n_input_features': len(features_step1),
+                'n_selected_features': len(selected_features),
+                'method': 'mRMR',
+                'parameters_used': {'candidates': candidates},
+            },
+        )
+        print(f"Step 2 completed using mRMR: {len(selected_features)} features")
+    else:
+        selected_features, selector = run_step2(X_step1, y, results_dir)
+        save_pipeline_state(
+            'step2',
+            X_step1[selected_features],
+            selected_features,
+            {
+                'n_input_features': len(features_step1),
+                'n_selected_features': len(selected_features),
+                'parameters_used': STEP2_PARAMS,
+                'phases_completed': ['Phase 1: XGBoost + Cumulative Analysis', 'Phase 2: RFECV'],
+            },
+        )
+        print(f"Step 2 completed using XGB+RFECV: {len(selected_features)} features")
 
-    save_pipeline_state('step2', X_step1[selected_features], selected_features, {
-        'n_input_features': len(features_step1),
-        'n_selected_features': len(selected_features),
-        'parameters_used': STEP2_PARAMS,
-        'phases_completed': ['Phase 1: XGBoost + Cumulative Analysis', 'Phase 2: RFECV']
-    })
-    
-    save_pipeline_state('step2_mrmr', X_step1[mrmr_features], mrmr_features, {
-        'n_input_features': len(features_step1),
-        'n_selected_features': len(mrmr_features),
-        'method': 'mRMR',
-        'parameters_used': {'n_features': mrmr_k}
-    })
-
-    print(f"Step 2 completed: {len(selected_features)} features selected")
-    print(f"mRMR selected: {len(mrmr_features)} features")
-    return selected_features, mrmr_features, selector
+    return selected_features, selector, method
 
 def run_step_3_models(X_final, y, final_features, feature_set_name="default"):
     """
@@ -486,23 +502,20 @@ def main():
                 print("Step 1 was skipped and no saved output found. Cannot proceed.")
                 return
         
-        # Step 2: Model-informed feature selection
-        features_step2, mrmr_features, selector_step2 = run_step_2(X_step1, y, features_step1)
+        # Step 2: Feature selection
+        selected_features, selector_step2, method_used = run_step_2(X_step1, y, features_step1)
 
-        if not RUN_CONFIG['step2_feature_selection'] and features_step2 is None:
-            features_step2 = load_step2_features()
-            if features_step2 is None:
+        if not RUN_CONFIG['step2_feature_selection'] and selected_features is None:
+            if method_used == 'mrmr':
+                selected_features = load_mrmr_features()
+            else:
+                selected_features = load_step2_features()
+            if selected_features is None:
                 print("Step 2 was skipped and no saved features found. Cannot proceed.")
                 return
-        if mrmr_features is None:
-            mrmr_features = load_mrmr_features()
-        
+
         # Step 3: Machine learning models
-        model_results_rfecv = run_step_3_models(X_step1, y, features_step2, feature_set_name='xgb_rfecv')
-        model_results_mrmr = run_step_3_models(X_step1, y, mrmr_features, feature_set_name='mrmr')
-        visualize_feature_method_comparison(model_results_rfecv, model_results_mrmr,
-                                            'XGB+RFECV', 'mRMR')
-        model_results = {'xgb_rfecv': model_results_rfecv, 'mrmr': model_results_mrmr}
+        model_results = run_step_3_models(X_step1, y, selected_features, feature_set_name=method_used)
         
         # Step 4: Evaluation
         evaluation_results = run_step_4_evaluation(model_results)
@@ -512,8 +525,7 @@ def main():
         print("="*80)
         print(f"Original features: {X_step1.shape[1] if X_step1 is not None else 'N/A'}")
         print(f"After Step 1: {len(features_step1) if features_step1 else 'N/A'}")
-        print(f"After Step 2 (XGB+RFECV): {len(features_step2) if features_step2 else 'N/A'}")
-        print(f"After mRMR: {len(mrmr_features) if mrmr_features else 'N/A'}")
+        print(f"After Step 2 ({method_used}): {len(selected_features) if selected_features else 'N/A'}")
         print(f"Models run: {len(model_results)}")
         print(f"Results saved in: {BASE_RESULTS_DIR}")
         print("="*80)
@@ -523,13 +535,11 @@ def main():
             'status': 'completed',
             'original_features': X_step1.shape[1] if X_step1 is not None else None,
             'features_after_step1': len(features_step1) if features_step1 else None,
-            'features_after_step2': len(features_step2) if features_step2 else None,
-            'features_after_mrmr': len(mrmr_features) if mrmr_features else None,
-            'final_features_xgb_rfecv': features_step2 if features_step2 else None,
-            'final_features_mrmr': mrmr_features if mrmr_features else None,
-            'models_run': list(model_results['xgb_rfecv'].keys()) if model_results else [],
+            'features_after_step2': len(selected_features) if selected_features else None,
+            'final_features': selected_features if selected_features else None,
+            'models_run': list(model_results.keys()) if model_results else [],
             'configuration_used': RUN_CONFIG,
-            'step2_method': 'XGBoost+RFECV and mRMR'
+            'step2_method': method_used
         }
         
         with open(f"{BASE_RESULTS_DIR}/final_summary.json", 'w') as f:
