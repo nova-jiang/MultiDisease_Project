@@ -1,0 +1,10 @@
+{
+  "model_name": "Manhattan",
+  "best_params": {
+    "algorithm": "auto",
+    "n_neighbors": 5,
+    "weights": "distance"
+  },
+  "cv_score": 0.6730143376565687,
+  "n_features": 132
+}

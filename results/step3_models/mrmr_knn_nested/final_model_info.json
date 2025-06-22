@@ -1,0 +1,10 @@
+{
+  "model_name": "Euclidean",
+  "best_params": {
+    "algorithm": "auto",
+    "n_neighbors": 9,
+    "weights": "distance"
+  },
+  "cv_score": 0.6625160679472326,
+  "n_features": 200
+}

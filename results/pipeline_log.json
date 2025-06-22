@@ -1,13 +1,13 @@
 {
-  "pipeline_start_time": "2025-06-21 21:46:11",
+  "pipeline_start_time": "2025-06-22 13:14:28",
   "configuration": {
-    "step1_biological_filtering": false,
+    "step1_biological_filtering": true,
     "step2_feature_selection": true,
     "step3_svm": false,
     "step3_knn": false,
-    "step3_lasso_regression": false,
+    "step3_lasso_regression": true,
     "step3_random_forest": true,
-    "step3_xgboost": false,
+    "step3_xgboost": true,
     "step3_naive_bayes": false,
     "step3_neural_network": true,
     "step4_cross_validation": false,
@@ -15,7 +15,7 @@
     "save_intermediate_results": true,
     "generate_visualizations": true,
     "verbose": true,
-    "feature_selection_method": "mrmr"
+    "feature_selection_method": "xgb_rfecv"
   },
   "step1_parameters": {
     "min_prevalence": 0.03,

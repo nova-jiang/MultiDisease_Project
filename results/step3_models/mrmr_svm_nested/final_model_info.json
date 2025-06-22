@@ -1,0 +1,10 @@
+{
+  "model_name": "RBF_SVM",
+  "best_params": {
+    "C": 10.0,
+    "class_weight": null,
+    "gamma": "scale"
+  },
+  "cv_score": 0.7341536217965142,
+  "n_features": 200
+}
