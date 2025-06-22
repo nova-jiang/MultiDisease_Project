@@ -29,12 +29,13 @@ class NestedLassoClassifier:
         self.nested_results = {}
         self.final_model = None
 
+
     def get_param_grid(self):
         return {
-            'C': np.logspace(-4, 4, 10),
+            'C': np.logspace(-4, 4, 10), # for full stats -4, 4, 10
             'penalty': ['l1'],
             'solver': ['liblinear'],
-            'max_iter': [5000]
+            'max_iter': [5000] # for full stats 5000
         }
 
     def inner_cv_hyperparameter_optimization(self, X_train, y_train):
@@ -57,6 +58,8 @@ class NestedLassoClassifier:
 
         le = LabelEncoder()
         y_encoded = le.fit_transform(y)
+        self.class_names = le.classes_.tolist()
+
 
         outer_cv = StratifiedKFold(n_splits=self.outer_cv_folds, shuffle=True, random_state=self.random_state)
 
@@ -134,6 +137,19 @@ class NestedLassoClassifier:
                 print(f"{k.replace('_', ' ').title()}: {np.mean(values):.4f} ± {np.std(values):.4f}")
         print("="*80)
 
+        # Save final model info and nested results
+        summary_info = {
+            "best_params": fold_results[-1]['best_params'],  # from last fold
+            "cv_score": self.nested_results['overall_metrics']['f1_macro'],
+            "n_features": X.shape[1]
+        }
+        with open(os.path.join(self.results_dir, "final_model_info.json"), 'w') as f:
+            json.dump(summary_info, f, indent=2)
+
+        with open(os.path.join(self.results_dir, "lasso_nested_cv_results.json"), 'w') as f:
+            json.dump(self.nested_results, f, indent=2)
+
+
         return self.nested_results
 
     def create_visualizations(self):
@@ -147,17 +163,40 @@ class NestedLassoClassifier:
     def _plot_cross_fold_performance(self):
         metrics = ['accuracy', 'f1_macro', 'precision_macro', 'recall_macro', 'auc_macro']
         folds = [f['fold'] for f in self.nested_results['fold_results']]
-        data = {metric: [f[metric] for f in self.nested_results['fold_results']] for metric in metrics}
 
-        df = pd.DataFrame(data, index=[f"Fold {i}" for i in folds])
-        df.plot(kind='bar', figsize=(12, 6))
-        plt.title("Cross-Fold Performance Metrics")
-        plt.ylabel("Score")
-        plt.xticks(rotation=45)
-        plt.legend(loc='lower right')
-        plt.tight_layout()
-        plt.savefig(f"{self.results_dir}/cross_fold_performance.png")
-        plt.close()
+        # Assign consistent, distinctive colors per metric
+        metric_colors = {
+            'accuracy': "#50a2dd",
+            'f1_macro': "#eba364",
+            'precision_macro': "#72b872",
+            'recall_macro': "#e28b8b",
+            'auc_macro': "#9a75bd"
+        }
+
+        for metric in metrics:
+            scores = [f[metric] for f in self.nested_results['fold_results']]
+            mean_score = np.mean(scores)
+
+            plt.figure(figsize=(7, 5))
+            bars = plt.bar(
+                [f"Fold {i}" for i in folds],
+                scores,
+                color=metric_colors.get(metric, 'skyblue')
+            )
+
+            # Mean line
+            plt.axhline(mean_score, color='red', linestyle='--', linewidth=1.5, label=f"Mean: {mean_score:.3f}")
+            plt.text(len(folds) - 0.6, mean_score + 0.01, f"Mean: {mean_score:.3f}", color='red', fontsize=10)
+
+            # Formatting
+            plt.title(f"{metric.replace('_', ' ').title()} Across CV Folds")
+            plt.ylabel(metric.replace('_', ' ').title())
+            plt.xlabel("Fold")
+            plt.ylim(0, 1)
+            plt.tight_layout()
+            plt.savefig(f"{self.results_dir}/{metric}_per_fold.png")
+            plt.close()
+
 
 
     def _plot_inner_vs_outer(self):
@@ -183,16 +222,21 @@ class NestedLassoClassifier:
     def _plot_confusion_matrix(self):
         if 'overall_confusion_matrix' not in self.nested_results:
             return
-        
+
         cm = np.array(self.nested_results['overall_confusion_matrix'])
+
+        class_names = self.class_names if hasattr(self, 'class_names') else [str(i) for i in range(cm.shape[0])]
+
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
         plt.title("Overall Confusion Matrix")
         plt.xlabel("Predicted Label")
         plt.ylabel("True Label")
         plt.tight_layout()
         plt.savefig(f"{self.results_dir}/overall_confusion_matrix.png")
         plt.close()
+
+
 
     def _plot_auc_per_fold(self):
         aucs = [f['auc_macro'] for f in self.nested_results['fold_results'] if f['auc_macro'] is not None]
@@ -234,18 +278,21 @@ class NestedLassoClassifier:
         if not reports:
             return
 
-        labels = list(reports[0].keys())
-        for skip in ['accuracy', 'macro avg', 'weighted avg']:
-            if skip in labels:
-                labels.remove(skip)
+        # Use LabelEncoder class names
+        labels = getattr(self, 'class_names', None)
+        if labels is None:
+            labels = [k for k in reports[0].keys()
+                    if k not in ['accuracy', 'macro avg', 'weighted avg']]
 
         averaged = {}
-        for label in labels:
+        for idx, label in enumerate(labels):
             avg_metrics = {'precision': [], 'recall': [], 'f1-score': []}
             for r in reports:
-                if label in r:
+                # Keys may be strings like "0", "1", etc. from classification_report
+                key = str(idx)
+                if key in r:
                     for k in avg_metrics:
-                        avg_metrics[k].append(r[label].get(k, 0))
+                        avg_metrics[k].append(r[key].get(k, 0))
             averaged[label] = {k: np.mean(v) for k, v in avg_metrics.items()}
 
         df = pd.DataFrame(averaged).T
