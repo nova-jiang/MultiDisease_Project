@@ -29,11 +29,12 @@ class NestedXGBoostClassifier:
         self.nested_results = {}
         self.final_model = None
 
+
     def get_param_grid(self):
         return {
-            'learning_rate': [0.01, 0.1, 0.3],
-            'max_depth': [3, 5, 7],
-            'n_estimators': [50, 100, 200],
+            'learning_rate': [0.01, 0.1, 0.3], # 0.01, 0.1, 0.3
+            'max_depth': [3, 5, 7], # 3, 5, 7
+            'n_estimators': [50, 100, 200], # 50, 100, 200
             'subsample': [0.8],
             'colsample_bytree': [0.8]
         }
@@ -59,6 +60,7 @@ class NestedXGBoostClassifier:
 
         le = LabelEncoder()
         y_encoded = le.fit_transform(y)
+        self.class_names = le.classes_.tolist()
 
         outer_cv = StratifiedKFold(n_splits=self.outer_cv_folds, shuffle=True, random_state=self.random_state)
 
@@ -118,6 +120,18 @@ class NestedXGBoostClassifier:
             'overall_classification_report': classification_report(all_y_true, all_y_pred, output_dict=True)
         }
 
+        # Save final model info and nested results
+        summary_info = {
+            "best_params": fold_results[-1]['best_params'],  # from last fold
+            "cv_score": self.nested_results['overall_metrics']['f1_macro'],
+            "n_features": X.shape[1]
+        }
+        with open(os.path.join(self.results_dir, "final_model_info.json"), 'w') as f:
+            json.dump(summary_info, f, indent=2)
+
+        with open(os.path.join(self.results_dir, "xgboost_nested_cv_results.json"), 'w') as f:
+            json.dump(self.nested_results, f, indent=2)
+
         return self.nested_results
 
     def create_visualizations(self):
@@ -131,17 +145,42 @@ class NestedXGBoostClassifier:
     def _plot_cross_fold_performance(self):
         metrics = ['accuracy', 'f1_macro', 'precision_macro', 'recall_macro', 'auc_macro']
         folds = [f['fold'] for f in self.nested_results['fold_results']]
-        data = {metric: [f[metric] for f in self.nested_results['fold_results']] for metric in metrics}
 
-        df = pd.DataFrame(data, index=[f"Fold {i}" for i in folds])
-        df.plot(kind='bar', figsize=(12, 6))
-        plt.title("Cross-Fold Performance Metrics")
-        plt.ylabel("Score")
-        plt.xticks(rotation=45)
-        plt.legend(loc='lower right')
-        plt.tight_layout()
-        plt.savefig(f"{self.results_dir}/cross_fold_performance.png")
-        plt.close()
+        # Assign consistent, distinctive colors per metric
+        metric_colors = {
+            'accuracy': "#50a2dd",
+            'f1_macro': "#eba364",
+            'precision_macro': "#72b872",
+            'recall_macro': "#e87070",
+            'auc_macro': "#9a75bd"
+        }
+
+        for metric in metrics:
+            scores = [f[metric] for f in self.nested_results['fold_results']]
+            mean_score = np.mean(scores)
+
+            plt.figure(figsize=(7, 5))
+            bars = plt.bar(
+                [f"Fold {i}" for i in folds],
+                scores,
+                color=metric_colors.get(metric, 'skyblue')
+            )
+
+            # Mean line
+            plt.axhline(mean_score, color='red', linestyle='--', linewidth=1.5, label=f"Mean: {mean_score:.3f}")
+            plt.text(len(folds) - 0.6, mean_score + 0.01, f"Mean: {mean_score:.3f}", color='red', fontsize=10)
+
+            # Formatting
+            plt.title(f"{metric.replace('_', ' ').title()} Across CV Folds")
+            plt.ylabel(metric.replace('_', ' ').title())
+            plt.xlabel("Fold")
+            plt.ylim(0, 1)
+            plt.tight_layout()
+            plt.savefig(f"{self.results_dir}/{metric}_per_fold.png")
+            plt.close()
+
+
+
 
 
     def _plot_inner_vs_outer(self):
@@ -167,16 +206,21 @@ class NestedXGBoostClassifier:
     def _plot_confusion_matrix(self):
         if 'overall_confusion_matrix' not in self.nested_results:
             return
-        
+
         cm = np.array(self.nested_results['overall_confusion_matrix'])
+
+        class_names = self.class_names if hasattr(self, 'class_names') else [str(i) for i in range(cm.shape[0])]
+
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
         plt.title("Overall Confusion Matrix")
         plt.xlabel("Predicted Label")
         plt.ylabel("True Label")
         plt.tight_layout()
         plt.savefig(f"{self.results_dir}/overall_confusion_matrix.png")
         plt.close()
+
+
 
     def _plot_auc_per_fold(self):
         aucs = [f['auc_macro'] for f in self.nested_results['fold_results'] if f['auc_macro'] is not None]
@@ -218,19 +262,18 @@ class NestedXGBoostClassifier:
         if not reports:
             return
 
-        labels = list(reports[0].keys())
-        for skip in ['accuracy', 'macro avg', 'weighted avg']:
-            if skip in labels:
-                labels.remove(skip)
+        # Ensure we have class names
+        class_names = getattr(self, 'class_names', [str(i) for i in range(len(reports[0]))])
+        idx_to_name = {str(i): name for i, name in enumerate(class_names)}
 
         averaged = {}
-        for label in labels:
+        for idx_str, label_name in idx_to_name.items():
             avg_metrics = {'precision': [], 'recall': [], 'f1-score': []}
             for r in reports:
-                if label in r:
+                if idx_str in r:
                     for k in avg_metrics:
-                        avg_metrics[k].append(r[label].get(k, 0))
-            averaged[label] = {k: np.mean(v) for k, v in avg_metrics.items()}
+                        avg_metrics[k].append(r[idx_str].get(k, 0))
+            averaged[label_name] = {k: np.mean(v) for k, v in avg_metrics.items()}
 
         df = pd.DataFrame(averaged).T
         plt.figure(figsize=(10, 6))
@@ -239,6 +282,7 @@ class NestedXGBoostClassifier:
         plt.tight_layout()
         plt.savefig(f"{self.results_dir}/classification_report_heatmap.png")
         plt.close()
+
 
     def print_summary(self):
         print("Saving results...")
