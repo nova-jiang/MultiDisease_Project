@@ -164,6 +164,7 @@ def build_abundance_matrix():
         rows.append(row)
 
     abundance_df = pd.DataFrame(rows, columns=species_list, index=df["run_id"])
+    abundance_df = abundance_df.clip(lower=0)
     abundance_df.to_csv("species_abundance_matrix.csv")
     print(f"Saved abundance matrix with {len(abundance_df)} samples to species_abundance_matrix.csv")
 
