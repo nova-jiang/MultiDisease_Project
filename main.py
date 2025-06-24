@@ -46,10 +46,9 @@ RUN_CONFIG = {
     'step3_svm': False,                    # SVM with nested CV
     'step3_knn': False,                    # KNN with nested CV
     'step3_lasso_regression': True,       # Lasso with nested CV
-    'step3_random_forest': True,         # Random Forest with nested CV
+    'step3_random_forest': False,         # Random Forest with nested CV
     'step3_xgboost': True,                # XGBoost with nested CV
-    'step3_naive_bayes': False,          # TODO: Implement
-    'step3_neural_network': True,       # MLP Neural Network with nested CV
+    'step3_neural_network': False,       # MLP Neural Network with nested CV
     
     # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
     'step4_cross_validation': False,     # Integrated into nested CV
@@ -59,7 +58,7 @@ RUN_CONFIG = {
     'save_intermediate_results': True,
     'generate_visualizations': True,
     'verbose': True,
-    'feature_selection_method': 'xgb_rfecv'  # !!! To change preprocessing method change: 'mrmr' OR 'xgb_rfecv' !!!
+    'feature_selection_method': 'mrmr'  # !!! To change preprocessing method change: 'mrmr' OR 'xgb_rfecv' !!!
 }
 
 # Step 1 parameters
@@ -306,8 +305,6 @@ def run_step_3_models(X_final, y, final_features, feature_set_name="default"):
         models_to_run.append('random_forest')
     if RUN_CONFIG['step3_xgboost']:
         models_to_run.append('xgboost')
-    if RUN_CONFIG['step3_naive_bayes']:
-        models_to_run.append('naive_bayes')
     if RUN_CONFIG['step3_neural_network']:
         models_to_run.append('neural_network')
     
