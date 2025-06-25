@@ -35,23 +35,25 @@ DATA_PATH = "gmrepo_cleaned_dataset.csv"
 BASE_RESULTS_DIR = "results" 
 
 # Pipeline control switches - Set to True/False to enable/disable steps
+# Feature Selection Method control switches - change preprocessing method to 'mrmr'/ 'xgb_rfecv'
+
 RUN_CONFIG = {
     # Step 1: Biological pre-filtering
     'step1_biological_filtering': True,
     
-    # Step 2: Model-informed feature selection
+    # Step 2: XGB_RFECV feature selection
     'step2_feature_selection': True,
     
     # Step 3: Individual ML models (nested cross-validation)
-    'step3_svm': False,                    # SVM with nested CV
-    'step3_knn': False,                    # KNN with nested CV
+    'step3_svm': True,                    # SVM with nested CV
+    'step3_knn': True,                    # KNN with nested CV
     'step3_lasso_regression': True,       # Lasso with nested CV
-    'step3_random_forest': False,         # Random Forest with nested CV
+    'step3_random_forest': True,         # Random Forest with nested CV
     'step3_xgboost': True,                # XGBoost with nested CV
-    'step3_neural_network': False,       # MLP Neural Network with nested CV
+    'step3_neural_network': True,       # MLP Neural Network with nested CV
     
     # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
-    'step4_cross_validation': False,     # Integrated into nested CV
+    'step4_cross_validation':  True,     # Integrated into nested CV
     'step4_final_evaluation': True,      # Final comparison and analysis
     
     # Additional options
@@ -228,7 +230,7 @@ def run_step_1(data_path):
 
 def run_step_2(X_step1, y, features_step1):
     """
-    Step 2: Model-informed feature selection (2-phase approach)
+    Step 2: MODEL-INFORMED feature selection (2-phase approach)
     """
     if not RUN_CONFIG['step2_feature_selection']:
         print("Step 2: SKIPPED (disabled in configuration)")

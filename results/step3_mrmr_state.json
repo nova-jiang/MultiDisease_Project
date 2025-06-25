@@ -1,6 +1,6 @@
 {
   "step": "step3_mrmr",
-  "timestamp": "2025-06-22T12:29:55.490066",
+  "timestamp": "2025-06-26T00:06:03.067624",
   "data_shape": [
     1085,
     200
@@ -210,130 +210,32 @@
   ],
   "results_summary": {
     "models_run": [
-      "svm_nested_cv",
-      "knn_nested_cv",
-      "lasso_regression",
-      "random_forest",
-      "xgboost",
-      "neural_network"
+      "random_forest"
     ],
     "model_results": {
-      "svm_nested_cv": {
-        "status": "completed",
-        "type": "nested_cross_validation",
-        "performance": {
-          "accuracy": 0.736405529953917,
-          "accuracy_std": 0.024280073497363126,
-          "f1_macro": 0.7449778158869799,
-          "f1_macro_std": 0.023828940416116592,
-          "f1_weighted": 0.7337151082713496,
-          "f1_weighted_std": 0.024300810795108974,
-          "precision_macro": 0.7465972256438951,
-          "precision_macro_std": 0.022333112166295604,
-          "recall_macro": 0.7478683448635728,
-          "recall_macro_std": 0.024883186678835743,
-          "auc_macro": 0.932344117504346,
-          "auc_macro_std": 0.005518922554507728
-        },
-        "best_f1_macro": 0.7449778158869799,
-        "results_dir": "results/step3_models/mrmr_svm_nested"
-      },
-      "knn_nested_cv": {
-        "status": "completed",
-        "type": "nested_cross_validation",
-        "performance": {
-          "accuracy": 0.6571428571428571,
-          "accuracy_std": 0.01187474537025357,
-          "f1_macro": 0.6689506632035722,
-          "f1_macro_std": 0.011031688713628742,
-          "f1_weighted": 0.6564374664027698,
-          "f1_weighted_std": 0.012647774513295705,
-          "precision_macro": 0.6802370507236797,
-          "precision_macro_std": 0.011611489838591,
-          "recall_macro": 0.6674043747580333,
-          "recall_macro_std": 0.011219992935427546,
-          "auc_macro": 0.8900742699366375,
-          "auc_macro_std": 0.009172221484310251
-        },
-        "best_f1_macro": 0.6689506632035722,
-        "results_dir": "results/step3_models/mrmr_knn_nested"
-      },
-      "lasso_regression": {
-        "status": "completed",
-        "type": "nested_cross_validation",
-        "performance": {
-          "accuracy": 0.6940092165898617,
-          "f1_macro": 0.7043719877056727,
-          "f1_weighted": 0.6931381846849731,
-          "precision_macro": 0.707807220099787,
-          "recall_macro": 0.7052165496810247,
-          "auc_macro": 0.8957796271788583
-        },
-        "best_f1_macro": 0.7043719877056727,
-        "results_dir": "results/step3_models/mrmr_lasso_nested"
-      },
       "random_forest": {
         "status": "completed",
         "type": "nested_cross_validation",
         "performance": {
-          "accuracy": 0.6820276497695852,
-          "accuracy_std": 0.020192536682218105,
-          "f1_macro": 0.6883536854751575,
-          "f1_macro_std": 0.01601300821279584,
-          "f1_weighted": 0.6786337279881192,
-          "f1_weighted_std": 0.0180844760274927,
-          "precision_macro": 0.6986840980443473,
-          "precision_macro_std": 0.0143672297934342,
-          "recall_macro": 0.690872881213284,
-          "recall_macro_std": 0.018957634299210335,
-          "auc_macro": 0.9044548473917473,
-          "auc_macro_std": 0.006372120635497539
+          "accuracy": 0.680184331797235,
+          "accuracy_std": 0.01585682076874215,
+          "f1_macro": 0.6861722180037876,
+          "f1_macro_std": 0.01454301694222628,
+          "f1_weighted": 0.6768803015934568,
+          "f1_weighted_std": 0.015501061279778025,
+          "precision_macro": 0.6984207799855742,
+          "precision_macro_std": 0.014406517866348466,
+          "recall_macro": 0.6883649447053475,
+          "recall_macro_std": 0.015008700656511593,
+          "auc_macro": 0.9047491143425997,
+          "auc_macro_std": 0.006628788112751508
         },
-        "best_f1_macro": 0.6883536854751575,
+        "best_f1_macro": 0.6861722180037876,
         "results_dir": "results/step3_models/mrmr_random_forest_nested"
-      },
-      "xgboost": {
-        "status": "completed",
-        "type": "nested_cross_validation",
-        "performance": {
-          "accuracy": 0.7428571428571429,
-          "f1_macro": 0.7497500262979582,
-          "f1_weighted": 0.7410329350408457,
-          "precision_macro": 0.7544032743661475,
-          "recall_macro": 0.7517002221885573,
-          "auc_macro": 0.9331834810190006
-        },
-        "best_f1_macro": 0.7497500262979582,
-        "results_dir": "results/step3_models/mrmr_xgboost_nested"
-      },
-      "neural_network": {
-        "status": "completed",
-        "type": "nested_cross_validation",
-        "performance": {
-          "accuracy": 0.6866359447004609,
-          "accuracy_std": 0.044105017931817134,
-          "f1_macro": 0.6953040128182433,
-          "f1_macro_std": 0.04178481973416783,
-          "f1_weighted": 0.683673622146993,
-          "f1_weighted_std": 0.04404615195234408,
-          "precision_macro": 0.6985480506104728,
-          "precision_macro_std": 0.04438415541981504,
-          "recall_macro": 0.6993085559427024,
-          "recall_macro_std": 0.042619002887988755,
-          "auc_macro": 0.9077108352940089,
-          "auc_macro_std": 0.009862378008516089
-        },
-        "best_f1_macro": 0.6953040128182433,
-        "results_dir": "results/step3_models/mrmr_neural_network_nested"
       }
     },
     "completed_models": [
-      "svm_nested_cv",
-      "knn_nested_cv",
-      "lasso_regression",
-      "random_forest",
-      "xgboost",
-      "neural_network"
+      "random_forest"
     ]
   }
 }

@@ -25,9 +25,9 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-class ModelInformedFeatureSelector:
+class XGB_RFECV_FeatureSelector:
     """
-    Model-informed feature selection pipeline
+    XGB_RFECV feature selection pipeline
     Phase 1: XGBoost initial feature ranking + importance analysis 
     Phase 2: Recursive Feature Elimination with Cross-Validation (RFECV)
     """
@@ -228,9 +228,9 @@ class ModelInformedFeatureSelector:
         self.phase1_results['feature_importance'] = importance_df
         self.phase1_results['top_features'] = top_features
         
-        # Perform cumulative importance analysis for informational purposes only
+        # Perform cumulative importance analysis
         print("\n" + "="*50)
-        print("CUMULATIVE IMPORTANCE ANALYSIS (INFORMATIONAL)")
+        print("CUMULATIVE IMPORTANCE ANALYSIS")
         print("="*50)
         
         optimal_k_suggested, recommendations = self._analyze_cumulative_importance(importance_df, feature_name_mapping)
@@ -797,7 +797,7 @@ class ModelInformedFeatureSelector:
     
     def run_complete_pipeline(self, X, y):
         """
-        Run the complete model-informed feature selection pipeline
+        Run the complete XGB_RFECV feature selection pipeline
         
         Parameters:
         -----------
@@ -812,7 +812,7 @@ class ModelInformedFeatureSelector:
             Final selected features
         """
         print("="*80)
-        print("MODEL-INFORMED FEATURE SELECTION PIPELINE")
+        print("XGB_RFECV FEATURE SELECTION PIPELINE")
         print("="*80)
         
         print(f"Input data shape: {X.shape}")
@@ -841,7 +841,7 @@ class ModelInformedFeatureSelector:
 
 def run_step2(X, y, results_dir='results/step2_feature_selection'):
     """
-    Run Step 2: Model-informed feature selection with cumulative importance analysis
+    Run Step 2: XGB_RFECV feature selection with cumulative importance analysis
     
     Parameters:
     -----------
@@ -858,7 +858,7 @@ def run_step2(X, y, results_dir='results/step2_feature_selection'):
         Final selected features
     """
     # adjusted by analysis
-    selector = ModelInformedFeatureSelector(
+    selector = XGB_RFECV_FeatureSelector(
         xgb_top_k=164,  
         cv_folds=5,
         random_state=42,
