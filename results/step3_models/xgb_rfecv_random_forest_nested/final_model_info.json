@@ -1,10 +1,10 @@
 {
   "best_params": {
-    "class_weight": null,
+    "class_weight": "balanced",
     "max_depth": null,
     "max_features": "sqrt",
     "n_estimators": 300
   },
-  "cv_score": 0.693574974869029,
+  "cv_score": 0.7198064034870741,
   "n_features": 132
 }

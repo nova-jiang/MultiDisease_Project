@@ -37,7 +37,7 @@ class NestedNeuralNetworkClassifier:
     def __init__(
         self,
         outer_cv_folds: int = 5,
-        inner_cv_folds: int = 3,
+        inner_cv_folds: int = 5,
         random_state: int = 42,
         results_dir: str = "results/step3_models/neural_network_nested",
     ):

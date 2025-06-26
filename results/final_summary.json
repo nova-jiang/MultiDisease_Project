@@ -1,5 +1,5 @@
 {
-  "pipeline_completion_time": "2025-06-22T14:03:36.794204",
+  "pipeline_completion_time": "2025-06-26T06:44:25.046287",
   "status": "completed",
   "original_features": 269,
   "features_after_step1": 269,
@@ -139,19 +139,17 @@
     "[Clostridium] clostridioforme"
   ],
   "models_run": [
-    "lasso_regression",
     "random_forest",
-    "xgboost",
     "neural_network"
   ],
   "configuration_used": {
-    "step1_biological_filtering": true,
+    "step1_biological_filtering": false,
     "step2_feature_selection": true,
     "step3_svm": false,
     "step3_knn": false,
-    "step3_lasso_regression": true,
+    "step3_lasso_regression": false,
     "step3_random_forest": true,
-    "step3_xgboost": true,
+    "step3_xgboost": false,
     "step3_naive_bayes": false,
     "step3_neural_network": true,
     "step4_cross_validation": false,

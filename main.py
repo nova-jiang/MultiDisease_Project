@@ -37,7 +37,7 @@ BASE_RESULTS_DIR = "results"
 # Pipeline control switches - Set to True/False to enable/disable steps
 RUN_CONFIG = {
     # Step 1: Biological pre-filtering
-    'step1_biological_filtering': True,
+    'step1_biological_filtering': False,
     
     # Step 2: Model-informed feature selection
     'step2_feature_selection': True,
@@ -45,9 +45,9 @@ RUN_CONFIG = {
     # Step 3: Individual ML models (nested cross-validation)
     'step3_svm': False,                    # SVM with nested CV
     'step3_knn': False,                    # KNN with nested CV
-    'step3_lasso_regression': True,       # Lasso with nested CV
+    'step3_lasso_regression': False,       # Lasso with nested CV
     'step3_random_forest': True,         # Random Forest with nested CV
-    'step3_xgboost': True,                # XGBoost with nested CV
+    'step3_xgboost': False,                # XGBoost with nested CV
     'step3_naive_bayes': False,          # TODO: Implement
     'step3_neural_network': True,       # MLP Neural Network with nested CV
     

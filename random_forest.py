@@ -28,7 +28,7 @@ from sklearn.ensemble import RandomForestClassifier
 class NestedRandomForestClassifier:
     """Random Forest classifier with nested cross-validation."""
 
-    def __init__(self, outer_cv_folds=5, inner_cv_folds=3, random_state=42,
+    def __init__(self, outer_cv_folds=5, inner_cv_folds=5, random_state=42,
                  results_dir="results/step3_models/random_forest_nested"):
         self.outer_cv_folds = outer_cv_folds
         self.inner_cv_folds = inner_cv_folds

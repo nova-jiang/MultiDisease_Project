@@ -1,13 +1,14 @@
 {
   "best_params": {
     "mlp__activation": "relu",
-    "mlp__alpha": 0.0001,
+    "mlp__alpha": 0.001,
     "mlp__batch_size": 32,
     "mlp__hidden_layer_sizes": [
+      256,
       128
     ],
-    "mlp__learning_rate_init": 0.0005
+    "mlp__learning_rate_init": 0.001
   },
-  "cv_score": 0.7139707773355601,
+  "cv_score": 0.73689019253527,
   "n_features": 132
 }
