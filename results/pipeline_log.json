@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "pipeline_start_time": "2025-06-26 06:35:17",
+=======
+  "pipeline_start_time": "2025-06-26 00:03:26",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
   "configuration": {
     "step1_biological_filtering": false,
     "step2_feature_selection": true,
@@ -8,14 +12,19 @@
     "step3_lasso_regression": false,
     "step3_random_forest": true,
     "step3_xgboost": false,
+<<<<<<< HEAD
     "step3_naive_bayes": false,
     "step3_neural_network": true,
     "step4_cross_validation": false,
+=======
+    "step3_neural_network": false,
+    "step4_cross_validation": true,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     "step4_final_evaluation": true,
     "save_intermediate_results": true,
     "generate_visualizations": true,
     "verbose": true,
-    "feature_selection_method": "xgb_rfecv"
+    "feature_selection_method": "mrmr"
   },
   "step1_parameters": {
     "min_prevalence": 0.03,

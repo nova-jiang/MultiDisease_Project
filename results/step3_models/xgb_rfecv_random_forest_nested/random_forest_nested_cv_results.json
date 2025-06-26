@@ -8,6 +8,7 @@
         "max_features": "sqrt",
         "n_estimators": 300
       },
+<<<<<<< HEAD
       "inner_cv_score": 0.7077676578391454,
       "accuracy": 0.7142857142857143,
       "f1_macro": 0.7170626719519642,
@@ -25,6 +26,25 @@
           "precision": 0.65625,
           "recall": 0.45652173913043476,
           "f1-score": 0.5384615384615384,
+=======
+      "inner_cv_score": 0.6871520366665242,
+      "accuracy": 0.7004608294930875,
+      "f1_macro": 0.7048659341210708,
+      "f1_weighted": 0.693724835508461,
+      "precision_macro": 0.7043886250152235,
+      "recall_macro": 0.7157091097308488,
+      "classification_report": {
+        "Autoimmune": {
+          "precision": 0.7619047619047619,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.7111111111111111,
+          "support": 48.0
+        },
+        "Healthy": {
+          "precision": 0.6176470588235294,
+          "recall": 0.45652173913043476,
+          "f1-score": 0.525,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 46.0
         },
         "Intestinal": {
@@ -40,6 +60,7 @@
           "support": 35.0
         },
         "Metabolic": {
+<<<<<<< HEAD
           "precision": 0.6274509803921569,
           "recall": 0.6666666666666666,
           "f1-score": 0.6464646464646465,
@@ -56,19 +77,45 @@
           "precision": 0.7082524670815478,
           "recall": 0.7142857142857143,
           "f1-score": 0.7057204450799672,
+=======
+          "precision": 0.6,
+          "recall": 0.6875,
+          "f1-score": 0.6407766990291263,
+          "support": 48.0
+        },
+        "accuracy": 0.7004608294930875,
+        "macro avg": {
+          "precision": 0.7043886250152235,
+          "recall": 0.7157091097308488,
+          "f1-score": 0.7048659341210708,
+          "support": 217.0
+        },
+        "weighted avg": {
+          "precision": 0.6974831587614008,
+          "recall": 0.7004608294930875,
+          "f1-score": 0.693724835508461,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 217.0
         }
       },
       "confusion_matrix": [
         [
+<<<<<<< HEAD
           34,
+=======
+          32,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           4,
           2,
           4,
           4
         ],
         [
+<<<<<<< HEAD
           6,
+=======
+          5,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           21,
           4,
           0,
@@ -96,7 +143,11 @@
           32
         ]
       ],
+<<<<<<< HEAD
       "auc_macro": 0.9129882404977643
+=======
+      "auc_macro": 0.9141406326921109
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     },
     {
       "fold": 2,
@@ -106,12 +157,21 @@
         "max_features": "sqrt",
         "n_estimators": 200
       },
+<<<<<<< HEAD
       "inner_cv_score": 0.6988162872506226,
       "accuracy": 0.695852534562212,
       "f1_macro": 0.7009149932661963,
       "f1_weighted": 0.6952931087330287,
       "precision_macro": 0.7106583612465965,
       "recall_macro": 0.7002245451025939,
+=======
+      "inner_cv_score": 0.6792168730690262,
+      "accuracy": 0.7096774193548387,
+      "f1_macro": 0.7149223669169986,
+      "f1_weighted": 0.7094829131221254,
+      "precision_macro": 0.7226397193082954,
+      "recall_macro": 0.7145499419279907,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "classification_report": {
         "Autoimmune": {
           "precision": 0.6428571428571429,
@@ -120,9 +180,15 @@
           "support": 48.0
         },
         "Healthy": {
+<<<<<<< HEAD
           "precision": 0.7435897435897436,
           "recall": 0.6444444444444445,
           "f1-score": 0.6904761904761905,
+=======
+          "precision": 0.75,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.7058823529411765,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 45.0
         },
         "Intestinal": {
@@ -132,6 +198,7 @@
           "support": 41.0
         },
         "Liver": {
+<<<<<<< HEAD
           "precision": 0.8666666666666667,
           "recall": 0.7428571428571429,
           "f1-score": 0.8,
@@ -154,16 +221,46 @@
           "precision": 0.7035410780599178,
           "recall": 0.695852534562212,
           "f1-score": 0.6952931087330287,
+=======
+          "precision": 0.8709677419354839,
+          "recall": 0.7714285714285715,
+          "f1-score": 0.8181818181818182,
+          "support": 35.0
+        },
+        "Metabolic": {
+          "precision": 0.6981132075471698,
+          "recall": 0.7708333333333334,
+          "f1-score": 0.7326732673267327,
+          "support": 48.0
+        },
+        "accuracy": 0.7096774193548387,
+        "macro avg": {
+          "precision": 0.7226397193082954,
+          "recall": 0.7145499419279907,
+          "f1-score": 0.7149223669169986,
+          "support": 217.0
+        },
+        "weighted avg": {
+          "precision": 0.7164460604888687,
+          "recall": 0.7096774193548387,
+          "f1-score": 0.7094829131221254,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 217.0
         }
       },
       "confusion_matrix": [
         [
+<<<<<<< HEAD
           27,
           5,
           12,
+=======
+          28,
+          4,
+          13,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           0,
-          4
+          3
         ],
         [
           1,
@@ -188,13 +285,22 @@
         ],
         [
           7,
+<<<<<<< HEAD
           2,
           2,
+=======
+          3,
+          1,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           0,
           37
         ]
       ],
+<<<<<<< HEAD
       "auc_macro": 0.9146026689785144
+=======
+      "auc_macro": 0.9164474854137128
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     },
     {
       "fold": 3,
@@ -204,6 +310,7 @@
         "max_features": "sqrt",
         "n_estimators": 300
       },
+<<<<<<< HEAD
       "inner_cv_score": 0.701880500473176,
       "accuracy": 0.7050691244239631,
       "f1_macro": 0.7157255553384145,
@@ -252,23 +359,86 @@
           "precision": 0.7071260334759136,
           "recall": 0.7050691244239631,
           "f1-score": 0.7053720873195489,
+=======
+      "inner_cv_score": 0.6777890742255832,
+      "accuracy": 0.7327188940092166,
+      "f1_macro": 0.7408802837374265,
+      "f1_weighted": 0.7325562546102374,
+      "precision_macro": 0.7470000000000001,
+      "recall_macro": 0.739904181184669,
+      "classification_report": {
+        "Autoimmune": {
+          "precision": 0.66,
+          "recall": 0.6875,
+          "f1-score": 0.673469387755102,
+          "support": 48.0
+        },
+        "Healthy": {
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1-score": 0.6666666666666666,
+          "support": 45.0
+        },
+        "Intestinal": {
+          "precision": 0.825,
+          "recall": 0.8048780487804879,
+          "f1-score": 0.8148148148148148,
+          "support": 41.0
+        },
+        "Liver": {
+          "precision": 0.8571428571428571,
+          "recall": 0.8571428571428571,
+          "f1-score": 0.8571428571428571,
+          "support": 35.0
+        },
+        "Metabolic": {
+          "precision": 0.6428571428571429,
+          "recall": 0.75,
+          "f1-score": 0.6923076923076923,
+          "support": 48.0
+        },
+        "accuracy": 0.7327188940092166,
+        "macro avg": {
+          "precision": 0.7470000000000001,
+          "recall": 0.739904181184669,
+          "f1-score": 0.7408802837374265,
+          "support": 217.0
+        },
+        "weighted avg": {
+          "precision": 0.7378439763001975,
+          "recall": 0.7327188940092166,
+          "f1-score": 0.7325562546102374,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 217.0
         }
       },
       "confusion_matrix": [
         [
+<<<<<<< HEAD
           30,
           7,
+=======
+          33,
+          5,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           2,
           2,
-          7
+          6
         ],
         [
+<<<<<<< HEAD
           3,
           28,
           2,
           2,
           10
+=======
+          5,
+          27,
+          1,
+          3,
+          9
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
         ],
         [
           3,
@@ -285,14 +455,26 @@
           1
         ],
         [
+<<<<<<< HEAD
           7,
+=======
+          6,
+          2,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           4,
           5,
           0,
+<<<<<<< HEAD
           32
         ]
       ],
       "auc_macro": 0.9083826634032484
+=======
+          36
+        ]
+      ],
+      "auc_macro": 0.9080864137004004
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     },
     {
       "fold": 4,
@@ -302,23 +484,38 @@
         "max_features": "sqrt",
         "n_estimators": 300
       },
+<<<<<<< HEAD
       "inner_cv_score": 0.691036283780745,
       "accuracy": 0.7050691244239631,
       "f1_macro": 0.7030829730775765,
       "f1_weighted": 0.6947248011433378,
       "precision_macro": 0.722944864973446,
       "recall_macro": 0.7133333333333334,
+=======
+      "inner_cv_score": 0.6845440915630366,
+      "accuracy": 0.7142857142857143,
+      "f1_macro": 0.7136137849079026,
+      "f1_weighted": 0.7064093907357664,
+      "precision_macro": 0.7154298642533936,
+      "recall_macro": 0.7230555555555556,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "classification_report": {
         "Autoimmune": {
-          "precision": 0.6078431372549019,
+          "precision": 0.5961538461538461,
           "recall": 0.6458333333333334,
-          "f1-score": 0.6262626262626263,
+          "f1-score": 0.62,
           "support": 48.0
         },
         "Healthy": {
+<<<<<<< HEAD
           "precision": 0.782608695652174,
           "recall": 0.4,
           "f1-score": 0.5294117647058824,
+=======
+          "precision": 0.6666666666666666,
+          "recall": 0.4444444444444444,
+          "f1-score": 0.5333333333333333,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 45.0
         },
         "Intestinal": {
@@ -334,6 +531,7 @@
           "support": 36.0
         },
         "Metabolic": {
+<<<<<<< HEAD
           "precision": 0.639344262295082,
           "recall": 0.8125,
           "f1-score": 0.7155963302752294,
@@ -350,6 +548,24 @@
           "precision": 0.7157678383986535,
           "recall": 0.7050691244239631,
           "f1-score": 0.6947248011433378,
+=======
+          "precision": 0.7450980392156863,
+          "recall": 0.7916666666666666,
+          "f1-score": 0.7676767676767676,
+          "support": 48.0
+        },
+        "accuracy": 0.7142857142857143,
+        "macro avg": {
+          "precision": 0.7154298642533936,
+          "recall": 0.7230555555555556,
+          "f1-score": 0.7136137849079026,
+          "support": 217.0
+        },
+        "weighted avg": {
+          "precision": 0.7100110515670288,
+          "recall": 0.7142857142857143,
+          "f1-score": 0.7064093907357664,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 217.0
         }
       },
@@ -362,18 +578,29 @@
           6
         ],
         [
+<<<<<<< HEAD
           13,
           18,
+=======
+          14,
+          20,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           1,
           1,
           12
         ],
         [
+<<<<<<< HEAD
           1,
           1,
           35,
+=======
           0,
-          3
+          2,
+          36,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+          0,
+          2
         ],
         [
           4,
@@ -384,18 +611,23 @@
         ],
         [
           2,
-          2,
+          3,
           4,
           1,
-          39
+          38
         ]
       ],
+<<<<<<< HEAD
       "auc_macro": 0.9038181308796924
+=======
+      "auc_macro": 0.9048377772430565
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     },
     {
       "fold": 5,
       "best_params": {
         "class_weight": "balanced",
+<<<<<<< HEAD
         "max_depth": null,
         "max_features": "log2",
         "n_estimators": 300
@@ -448,6 +680,60 @@
           "precision": 0.6783739081721366,
           "recall": 0.6682027649769585,
           "f1-score": 0.6682261827910306,
+=======
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "n_estimators": 300
+      },
+      "inner_cv_score": 0.7011961283847675,
+      "accuracy": 0.6543778801843319,
+      "f1_macro": 0.6629417372734304,
+      "f1_weighted": 0.649504440571372,
+      "precision_macro": 0.6794372294372295,
+      "recall_macro": 0.6641666666666667,
+      "classification_report": {
+        "Autoimmune": {
+          "precision": 0.5333333333333333,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.5925925925925926,
+          "support": 48.0
+        },
+        "Healthy": {
+          "precision": 0.5714285714285714,
+          "recall": 0.35555555555555557,
+          "f1-score": 0.4383561643835616,
+          "support": 45.0
+        },
+        "Intestinal": {
+          "precision": 0.7954545454545454,
+          "recall": 0.875,
+          "f1-score": 0.8333333333333334,
+          "support": 40.0
+        },
+        "Liver": {
+          "precision": 0.9333333333333333,
+          "recall": 0.7777777777777778,
+          "f1-score": 0.8484848484848485,
+          "support": 36.0
+        },
+        "Metabolic": {
+          "precision": 0.5636363636363636,
+          "recall": 0.6458333333333334,
+          "f1-score": 0.6019417475728155,
+          "support": 48.0
+        },
+        "accuracy": 0.6543778801843319,
+        "macro avg": {
+          "precision": 0.6794372294372295,
+          "recall": 0.6641666666666667,
+          "f1-score": 0.6629417372734304,
+          "support": 217.0
+        },
+        "weighted avg": {
+          "precision": 0.6626129630737926,
+          "recall": 0.6543778801843319,
+          "f1-score": 0.649504440571372,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
           "support": 217.0
         }
       },
@@ -460,6 +746,7 @@
           5
         ],
         [
+<<<<<<< HEAD
           9,
           20,
           2,
@@ -510,10 +797,63 @@
       155,
       25,
       22,
+=======
+          11,
+          16,
+          1,
+          2,
+          15
+        ],
+        [
+          2,
+          1,
+          35,
+          0,
+          2
+        ],
+        [
+          4,
+          1,
+          2,
+          28,
+          1
+        ],
+        [
+          11,
+          3,
+          3,
+          0,
+          31
+        ]
+      ],
+      "auc_macro": 0.9124030761237798
+    }
+  ],
+  "overall_metrics": {
+    "accuracy": 0.7023041474654378,
+    "accuracy_std": 0.026166026850835737,
+    "f1_macro": 0.7074448213913658,
+    "f1_macro_std": 0.02529456501231852,
+    "f1_weighted": 0.6983355669095925,
+    "f1_weighted_std": 0.027445375453711198,
+    "precision_macro": 0.7137790876028284,
+    "precision_macro_std": 0.02214682319496796,
+    "recall_macro": 0.7114770910131462,
+    "recall_macro_std": 0.025328991072664262,
+    "auc_macro": 0.9111830770346121,
+    "auc_macro_std": 0.004190505508333938
+  },
+  "overall_confusion_matrix": [
+    [
+      156,
+      25,
+      23,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       12,
-      26
+      24
     ],
     [
+<<<<<<< HEAD
       32,
       116,
       11,
@@ -526,11 +866,26 @@
       170,
       5,
       8
+=======
+      36,
+      114,
+      10,
+      8,
+      58
+    ],
+    [
+      7,
+      10,
+      169,
+      5,
+      11
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     ],
     [
       17,
       2,
       8,
+<<<<<<< HEAD
       145,
       5
     ],
@@ -540,10 +895,22 @@
       17,
       2,
       171
+=======
+      148,
+      2
+    ],
+    [
+      30,
+      17,
+      16,
+      2,
+      175
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     ]
   ],
   "overall_classification_report": {
     "Autoimmune": {
+<<<<<<< HEAD
       "precision": 0.6326530612244898,
       "recall": 0.6458333333333334,
       "f1-score": 0.6391752577319587,
@@ -584,6 +951,48 @@
       "precision": 0.6990847645794331,
       "recall": 0.6976958525345622,
       "f1-score": 0.6948005734668682,
+=======
+      "precision": 0.6341463414634146,
+      "recall": 0.65,
+      "f1-score": 0.6419753086419753,
+      "support": 240.0
+    },
+    "Healthy": {
+      "precision": 0.6785714285714286,
+      "recall": 0.504424778761062,
+      "f1-score": 0.5786802030456852,
+      "support": 226.0
+    },
+    "Intestinal": {
+      "precision": 0.7477876106194691,
+      "recall": 0.8366336633663366,
+      "f1-score": 0.7897196261682243,
+      "support": 202.0
+    },
+    "Liver": {
+      "precision": 0.8457142857142858,
+      "recall": 0.8361581920903954,
+      "f1-score": 0.8409090909090909,
+      "support": 177.0
+    },
+    "Metabolic": {
+      "precision": 0.6481481481481481,
+      "recall": 0.7291666666666666,
+      "f1-score": 0.6862745098039216,
+      "support": 240.0
+    },
+    "accuracy": 0.7023041474654378,
+    "macro avg": {
+      "precision": 0.7108735629033491,
+      "recall": 0.7112766601768921,
+      "f1-score": 0.7075117477137794,
+      "support": 1085.0
+    },
+    "weighted avg": {
+      "precision": 0.7021680610879992,
+      "recall": 0.7023041474654378,
+      "f1-score": 0.6985492681034383,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "support": 1085.0
     }
   },
@@ -1683,7 +2092,7 @@
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
-      "Autoimmune",
+      "Metabolic",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
@@ -1760,7 +2169,7 @@
       "Intestinal",
       "Healthy",
       "Metabolic",
-      "Metabolic",
+      "Autoimmune",
       "Intestinal",
       "Autoimmune",
       "Metabolic",
@@ -1893,7 +2302,11 @@
       "Metabolic",
       "Metabolic",
       "Intestinal",
+      "Healthy",
+<<<<<<< HEAD
+=======
       "Healthy",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Autoimmune",
       "Healthy",
       "Autoimmune",
@@ -2070,7 +2483,7 @@
       "Metabolic",
       "Metabolic",
       "Metabolic",
-      "Metabolic",
+      "Healthy",
       "Metabolic",
       "Metabolic",
       "Metabolic",
@@ -2116,8 +2529,8 @@
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
-      "Metabolic",
       "Autoimmune",
+      "Autoimmune",
       "Metabolic",
       "Autoimmune",
       "Autoimmune",
@@ -2171,7 +2584,7 @@
       "Healthy",
       "Healthy",
       "Healthy",
-      "Healthy",
+      "Metabolic",
       "Healthy",
       "Liver",
       "Healthy",
@@ -2198,7 +2611,7 @@
       "Healthy",
       "Healthy",
       "Healthy",
-      "Intestinal",
+      "Liver",
       "Metabolic",
       "Metabolic",
       "Metabolic",
@@ -2321,8 +2734,13 @@
       "Metabolic",
       "Metabolic",
       "Metabolic",
+<<<<<<< HEAD
       "Autoimmune",
       "Autoimmune",
+=======
+      "Metabolic",
+      "Metabolic",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Healthy",
       "Intestinal",
       "Metabolic",
@@ -2394,9 +2812,14 @@
       "Healthy",
       "Autoimmune",
       "Metabolic",
+      "Healthy",
       "Healthy",
+      "Autoimmune",
+<<<<<<< HEAD
+=======
       "Healthy",
       "Autoimmune",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Metabolic",
       "Healthy",
       "Metabolic",
@@ -2409,11 +2832,11 @@
       "Metabolic",
       "Autoimmune",
       "Autoimmune",
+      "Metabolic",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
-      "Metabolic",
       "Intestinal",
       "Metabolic",
       "Metabolic",
@@ -2455,7 +2878,7 @@
       "Intestinal",
       "Intestinal",
       "Intestinal",
-      "Metabolic",
+      "Healthy",
       "Intestinal",
       "Intestinal",
       "Metabolic",
@@ -2561,11 +2984,11 @@
       "Healthy",
       "Metabolic",
       "Metabolic",
-      "Autoimmune",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
+      "Metabolic",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
@@ -2591,7 +3014,6 @@
       "Intestinal",
       "Autoimmune",
       "Intestinal",
-      "Healthy",
       "Healthy",
       "Healthy",
       "Healthy",
@@ -2604,19 +3026,28 @@
       "Healthy",
       "Healthy",
       "Healthy",
+      "Autoimmune",
       "Healthy",
       "Metabolic",
       "Autoimmune",
+<<<<<<< HEAD
       "Metabolic",
+=======
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Metabolic",
       "Metabolic",
-      "Autoimmune",
+      "Metabolic",
       "Metabolic",
       "Metabolic",
+      "Metabolic",
       "Healthy",
       "Liver",
+<<<<<<< HEAD
       "Metabolic",
+=======
       "Healthy",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+      "Healthy",
       "Autoimmune",
       "Autoimmune",
       "Autoimmune",
@@ -2627,12 +3058,21 @@
       "Metabolic",
       "Healthy",
       "Metabolic",
+<<<<<<< HEAD
       "Metabolic",
       "Autoimmune",
       "Healthy",
       "Healthy",
       "Intestinal",
+      "Healthy",
+=======
+      "Liver",
+      "Autoimmune",
+      "Autoimmune",
       "Healthy",
+      "Metabolic",
+      "Metabolic",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Autoimmune",
       "Autoimmune",
       "Metabolic",
@@ -2647,7 +3087,11 @@
       "Intestinal",
       "Autoimmune",
       "Intestinal",
+<<<<<<< HEAD
       "Healthy",
+=======
+      "Metabolic",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Intestinal",
       "Autoimmune",
       "Intestinal",
@@ -2702,8 +3146,8 @@
       "Liver",
       "Liver",
       "Liver",
+      "Intestinal",
       "Liver",
-      "Autoimmune",
       "Liver",
       "Intestinal",
       "Liver",
@@ -2720,10 +3164,10 @@
       "Metabolic",
       "Autoimmune",
       "Healthy",
-      "Metabolic",
       "Metabolic",
       "Metabolic",
       "Healthy",
+      "Healthy",
       "Intestinal",
       "Metabolic",
       "Metabolic",
@@ -2737,23 +3181,37 @@
       "Metabolic",
       "Autoimmune",
       "Healthy",
+<<<<<<< HEAD
       "Metabolic",
+=======
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Metabolic",
       "Metabolic",
       "Metabolic",
       "Metabolic",
       "Metabolic",
+      "Autoimmune",
       "Metabolic",
       "Autoimmune",
       "Healthy",
       "Metabolic",
       "Autoimmune",
       "Metabolic",
+<<<<<<< HEAD
       "Healthy",
       "Intestinal",
+=======
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Autoimmune",
+      "Intestinal",
+      "Intestinal",
+      "Metabolic",
+      "Metabolic",
       "Metabolic",
+<<<<<<< HEAD
       "Autoimmune",
+=======
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
       "Metabolic",
       "Metabolic",
       "Metabolic",

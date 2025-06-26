@@ -1,10 +1,15 @@
 {
   "step": "step4",
+<<<<<<< HEAD
   "timestamp": "2025-06-26T06:44:25.044288",
+=======
+  "timestamp": "2025-06-26T00:06:03.068119",
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
   "data_shape": null,
   "n_features": null,
   "features": null,
   "results_summary": {
+    "cross_validation": "Placeholder - implement cross-validation",
     "final_evaluation": "Placeholder - implement final evaluation"
   }
 }

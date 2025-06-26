@@ -5,6 +5,10 @@
     "max_features": "sqrt",
     "n_estimators": 200
   },
+<<<<<<< HEAD
   "cv_score": 0.6924830059121032,
+=======
+  "cv_score": 0.6743377273499394,
+>>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
   "n_features": 200
 }

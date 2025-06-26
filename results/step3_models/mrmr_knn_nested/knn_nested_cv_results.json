@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-06-22T12:17:08.706111",
+  "timestamp": "2025-06-25T23:11:58.269655",
   "model_type": "K-Nearest Neighbors (Nested CV)",
   "methodology": "Nested Cross-Validation with Pre-selected Features",
   "feature_selection": "Pre-selected from Steps 1&2",
@@ -2811,8 +2811,8 @@
       13
     ],
     "distance_metric_frequency": {
-      "Euclidean": 1,
-      "Manhattan": 4
+      "Manhattan": 4,
+      "Euclidean": 1
     },
     "weights_frequency": {
       "distance": 5
