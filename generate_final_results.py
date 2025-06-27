@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 STEP3_DIR = os.path.join('results', 'step3_models')
 OUTPUT_DIR = os.path.join('results', 'final_results')
@@ -76,9 +77,33 @@ def create_plots(df):
     metrics = ['accuracy', 'f1_macro', 'precision_macro', 'recall_macro']
     if 'auc_macro' in df.columns:
         metrics.append('auc_macro')
+
+    pastel_palette = sns.color_palette("pastel")
+
     for metric in metrics:
         plt.figure(figsize=(10, 6))
-        sns.barplot(x='model', y=metric, hue='group', data=df, dodge=False)
+        ax = sns.barplot(
+            x='model',
+            y=metric,
+            hue='group',
+            data=df,
+            dodge=False,
+            order=df['model'],
+            palette=pastel_palette,
+        )
+
+        std_col = f"{metric}_std"
+        if std_col in df.columns:
+            x_positions = np.arange(len(df))
+            ax.errorbar(
+                x_positions,
+                df[metric],
+                yerr=df[std_col],
+                fmt='none',
+                c='black',
+                capsize=5,
+                lw=1
+            )
         plt.xlabel('Model')
         plt.ylabel(metric.replace('_', ' ').title())
         plt.xticks(rotation=45, ha='right')
