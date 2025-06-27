@@ -1,13 +1,10 @@
 import pandas as pd
 import numpy as np
-from scipy import stats
 from scipy.stats import kruskal
 from statsmodels.stats.multitest import multipletests
 import matplotlib
-matplotlib.use('Agg')   # non-interactive backend that doesn’t require Tcl/Tk
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import StandardScaler
 import warnings
 warnings.filterwarnings('ignore')
 
