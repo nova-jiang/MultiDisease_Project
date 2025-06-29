@@ -51,6 +51,7 @@ def gather_results():
             continue
         if not sub.endswith('_nested'):
             continue
+        
         # identify JSON file
         json_files = [f for f in os.listdir(subdir) if f.endswith('_cv_results.json')]
         if not json_files:
@@ -81,8 +82,9 @@ def create_plots(df):
     pastel_palette = sns.color_palette("pastel")
 
     for metric in metrics:
-        plt.figure(figsize=(10, 6))
-        ax = sns.barplot(
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        sns.barplot(
             x='model',
             y=metric,
             hue='group',
@@ -90,6 +92,7 @@ def create_plots(df):
             dodge=False,
             order=df['model'],
             palette=pastel_palette,
+            ax=ax
         )
 
         std_col = f"{metric}_std"
@@ -104,13 +107,28 @@ def create_plots(df):
                 capsize=5,
                 lw=1
             )
-        plt.xlabel('Model')
-        plt.ylabel(metric.replace('_', ' ').title())
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
+
+        ymax = df[metric].max()
+        ax.set_ylim(0, ymax * 1.15)
+
+        ax.set_xlabel('Model')
+        ax.set_ylabel(metric.replace('_', ' ').title())
+        ax.set_xticklabels(df['model'], rotation=45, ha='right')
+
+        n_groups = df['group'].nunique()
+        ax.legend(
+            loc='upper center',
+            bbox_to_anchor=(0.5, 1.12),
+            ncol=n_groups,
+            frameon=False
+        )
+
+        fig.tight_layout()
+        fig.subplots_adjust(top=0.85)
+
         out_path = os.path.join(OUTPUT_DIR, f'{metric}_barplot.png')
-        plt.savefig(out_path, dpi=300)
-        plt.close()
+        fig.savefig(out_path, dpi=300)
+        plt.close(fig)
 
 
 def main():
