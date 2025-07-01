@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from PIL import Image
 
 STEP3_DIR = os.path.join('results', 'step3_models')
 OUTPUT_DIR = os.path.join('results', 'final_results')
@@ -130,6 +131,33 @@ def create_plots(df):
         fig.savefig(out_path, dpi=300)
         plt.close(fig)
 
+    return metrics
+
+
+def combine_barplots(metrics):
+    """Combine individual barplot images into a single figure."""
+    images = []
+    for metric in metrics:
+        path = os.path.join(OUTPUT_DIR, f"{metric}_barplot.png")
+        if os.path.exists(path):
+            images.append(Image.open(path))
+
+    if not images:
+        return
+
+    cols = 2
+    rows = int(np.ceil(len(images) / cols))
+    w, h = images[0].size
+    canvas = Image.new("RGB", (cols * w, rows * h), "white")
+
+    for idx, img in enumerate(images):
+        r = idx // cols
+        c = idx % cols
+        canvas.paste(img, (c * w, r * h))
+
+    combined_path = os.path.join(OUTPUT_DIR, "combined_barplots.png")
+    canvas.save(combined_path)
+
 
 def main():
     df = gather_results()
@@ -137,7 +165,8 @@ def main():
         print('No results found.')
         return
     save_tables(df)
-    create_plots(df)
+    metrics = create_plots(df)
+    combine_barplots(metrics)
     print(f'Results saved to {OUTPUT_DIR}')
 
 
