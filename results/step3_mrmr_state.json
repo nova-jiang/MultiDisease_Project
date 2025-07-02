@@ -1,10 +1,6 @@
 {
   "step": "step3_mrmr",
-<<<<<<< HEAD
-  "timestamp": "2025-06-26T06:22:59.031729",
-=======
-  "timestamp": "2025-06-26T00:06:03.067624",
->>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+  "timestamp": "2025-07-02T22:47:32.036815",
   "data_shape": [
     1085,
     200
@@ -214,80 +210,54 @@
   ],
   "results_summary": {
     "models_run": [
-<<<<<<< HEAD
-      "random_forest",
-      "neural_network"
-=======
-      "random_forest"
->>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+      "lasso_regression",
+      "xgboost"
     ],
     "model_results": {
-      "random_forest": {
+      "lasso_regression": {
         "status": "completed",
         "type": "nested_cross_validation",
         "performance": {
-<<<<<<< HEAD
-          "accuracy": 0.6838709677419355,
-          "accuracy_std": 0.01714384814538087,
-          "f1_macro": 0.6898787543223202,
-          "f1_macro_std": 0.018878764854629467,
-          "f1_weighted": 0.6814557819547289,
-          "f1_weighted_std": 0.018275014146072226,
-          "precision_macro": 0.6960971882376781,
-          "precision_macro_std": 0.02185870098070191,
-          "recall_macro": 0.6916596306956859,
-          "recall_macro_std": 0.017586125273820287,
-          "auc_macro": 0.9043950569717764,
-          "auc_macro_std": 0.0029149748559503877
+          "accuracy": 0.6940092165898617,
+          "accuracy_std": 0.024489088028730725,
+          "f1_macro": 0.7043719877056727,
+          "f1_macro_std": 0.02264315408086644,
+          "f1_weighted": 0.6931381846849731,
+          "f1_weighted_std": 0.022317978008145528,
+          "precision_macro": 0.707807220099787,
+          "precision_macro_std": 0.020928220814511088,
+          "recall_macro": 0.7052165496810247,
+          "recall_macro_std": 0.026553122454735508,
+          "auc_macro": 0.8958002990134835,
+          "auc_macro_std": 0.008859128728338784
         },
-        "best_f1_macro": 0.6898787543223202,
-        "results_dir": "results/step3_models/mrmr_random_forest_nested"
+        "best_f1_macro": 0.7043719877056727,
+        "results_dir": "results/step3_models/mrmr_lasso_nested"
       },
-      "neural_network": {
+      "xgboost": {
         "status": "completed",
         "type": "nested_cross_validation",
         "performance": {
-          "accuracy": 0.6829493087557603,
-          "accuracy_std": 0.025139505432231996,
-          "f1_macro": 0.6926658733726481,
-          "f1_macro_std": 0.024012441120715308,
-          "f1_weighted": 0.6809279540821229,
-          "f1_weighted_std": 0.023538294228168933,
-          "precision_macro": 0.693347950950067,
-          "precision_macro_std": 0.021692552566188548,
-          "recall_macro": 0.6953770220000337,
-          "recall_macro_std": 0.027879304202210603,
-          "auc_macro": 0.9058792358035619,
-          "auc_macro_std": 0.008118550009867416
+          "accuracy": 0.7428571428571429,
+          "accuracy_std": 0.020065936458135702,
+          "f1_macro": 0.7497500262979582,
+          "f1_macro_std": 0.018107478771759795,
+          "f1_weighted": 0.7410329350408457,
+          "f1_weighted_std": 0.018996423712580722,
+          "precision_macro": 0.7544032743661475,
+          "precision_macro_std": 0.015042073536457517,
+          "recall_macro": 0.7517002221885573,
+          "recall_macro_std": 0.021233666840321706,
+          "auc_macro": 0.9331834810190006,
+          "auc_macro_std": 0.004799905601098416
         },
-        "best_f1_macro": 0.6926658733726481,
-        "results_dir": "results/step3_models/mrmr_neural_network_nested"
+        "best_f1_macro": 0.7497500262979582,
+        "results_dir": "results/step3_models/mrmr_xgboost_nested"
       }
     },
     "completed_models": [
-      "random_forest",
-      "neural_network"
-=======
-          "accuracy": 0.680184331797235,
-          "accuracy_std": 0.01585682076874215,
-          "f1_macro": 0.6861722180037876,
-          "f1_macro_std": 0.01454301694222628,
-          "f1_weighted": 0.6768803015934568,
-          "f1_weighted_std": 0.015501061279778025,
-          "precision_macro": 0.6984207799855742,
-          "precision_macro_std": 0.014406517866348466,
-          "recall_macro": 0.6883649447053475,
-          "recall_macro_std": 0.015008700656511593,
-          "auc_macro": 0.9047491143425997,
-          "auc_macro_std": 0.006628788112751508
-        },
-        "best_f1_macro": 0.6861722180037876,
-        "results_dir": "results/step3_models/mrmr_random_forest_nested"
-      }
-    },
-    "completed_models": [
-      "random_forest"
->>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+      "lasso_regression",
+      "xgboost"
     ]
   }
 }

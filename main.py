@@ -45,12 +45,12 @@ RUN_CONFIG = {
     'step2_feature_selection': True,
     
     # Step 3: Individual ML models (nested cross-validation)
-    'step3_svm': True,                    # SVM with nested CV
-    'step3_knn': True,                    # KNN with nested CV
+    'step3_svm': False,                    # SVM with nested CV
+    'step3_knn': False,                    # KNN with nested CV
     'step3_lasso_regression': True,       # Lasso with nested CV
-    'step3_random_forest': True,         # Random Forest with nested CV
+    'step3_random_forest': False,         # Random Forest with nested CV
     'step3_xgboost': True,                # XGBoost with nested CV
-    'step3_neural_network': True,       # MLP Neural Network with nested CV
+    'step3_neural_network': False,       # MLP Neural Network with nested CV
     
     # Step 4: Cross-validation and evaluation (deprecated - now done in Step 3)
     'step4_cross_validation':  True,     # Integrated into nested CV
@@ -60,7 +60,7 @@ RUN_CONFIG = {
     'save_intermediate_results': True,
     'generate_visualizations': True,
     'verbose': True,
-    'feature_selection_method': 'mrmr'  # !!! To change preprocessing method change: 'mrmr' OR 'xgb_rfecv' !!!
+    'feature_selection_method': 'xgb_rfecv'  # !!! To change preprocessing method change: 'mrmr' OR 'xgb_rfecv' !!!
 }
 
 # Step 1 parameters

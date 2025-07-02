@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "pipeline_completion_time": "2025-06-26T06:44:25.046287",
-=======
-  "pipeline_completion_time": "2025-06-26T00:06:03.068304",
->>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+  "pipeline_completion_time": "2025-07-02T22:47:32.041830",
   "status": "completed",
   "original_features": 269,
   "features_after_step1": 269,
@@ -211,29 +207,19 @@
     "Lactobacillus rhamnosus"
   ],
   "models_run": [
-<<<<<<< HEAD
-    "random_forest",
-    "neural_network"
-=======
-    "random_forest"
->>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
+    "lasso_regression",
+    "xgboost"
   ],
   "configuration_used": {
     "step1_biological_filtering": false,
     "step2_feature_selection": true,
     "step3_svm": false,
     "step3_knn": false,
-    "step3_lasso_regression": false,
-    "step3_random_forest": true,
-    "step3_xgboost": false,
-<<<<<<< HEAD
-    "step3_naive_bayes": false,
-    "step3_neural_network": true,
-    "step4_cross_validation": false,
-=======
+    "step3_lasso_regression": true,
+    "step3_random_forest": false,
+    "step3_xgboost": true,
     "step3_neural_network": false,
     "step4_cross_validation": true,
->>>>>>> df43d0d623bc23087e2a4e0cb8ff80f1029257c1
     "step4_final_evaluation": true,
     "save_intermediate_results": true,
     "generate_visualizations": true,

@@ -117,11 +117,18 @@ class NestedLassoClassifier:
             'fold_results': fold_results,
             'overall_metrics': {
                 'accuracy': np.mean([f['accuracy'] for f in fold_results]),
+                'accuracy_std': np.std([f['accuracy'] for f in fold_results]),
                 'f1_macro': np.mean([f['f1_macro'] for f in fold_results]),
+                'f1_macro_std': np.std([f['f1_macro'] for f in fold_results]),
                 'f1_weighted': np.mean([f['f1_weighted'] for f in fold_results]),
+                'f1_weighted_std': np.std([f['f1_weighted'] for f in fold_results]),
                 'precision_macro': np.mean([f['precision_macro'] for f in fold_results]),
+                'precision_macro_std': np.std([f['precision_macro'] for f in fold_results]),
                 'recall_macro': np.mean([f['recall_macro'] for f in fold_results]),
+                'recall_macro_std': np.std([f['recall_macro'] for f in fold_results]),
                 'auc_macro': np.mean([f['auc_macro'] for f in fold_results if f['auc_macro'] is not None])
+                if any(f['auc_macro'] is not None for f in fold_results) else None,
+                'auc_macro_std': np.std([f['auc_macro'] for f in fold_results if f['auc_macro'] is not None])
                 if any(f['auc_macro'] is not None for f in fold_results) else None
             },
             'overall_confusion_matrix': confusion_matrix(all_y_true, all_y_pred).tolist(),
@@ -131,10 +138,14 @@ class NestedLassoClassifier:
         print("="*80)
         print("NESTED CV RESULTS SUMMARY")
         print("="*80)
-        for k, v in self.nested_results['overall_metrics'].items():
-            if v is not None:
-                values = [f[k] for f in fold_results if f[k] is not None]
-                print(f"{k.replace('_', ' ').title()}: {np.mean(values):.4f} ± {np.std(values):.4f}")
+        for metric, value in self.nested_results['overall_metrics'].items():
+            if metric.endswith('_std') or value is None:
+                continue
+            std_val = self.nested_results['overall_metrics'].get(f"{metric}_std")
+            if std_val is not None:
+                print(f"{metric.replace('_', ' ').title()}: {value:.4f} ± {std_val:.4f}")
+            else:
+                print(f"{metric.replace('_', ' ').title()}: {value:.4f}")
         print("="*80)
 
         # Save final model info and nested results
