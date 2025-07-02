@@ -114,6 +114,7 @@ def create_plots(df):
 
         ax.set_xlabel('Model')
         ax.set_ylabel(metric.replace('_', ' ').title())
+        ax.set_title(ax.get_ylabel(), pad=20)
         ax.set_xticklabels(df['model'], rotation=45, ha='right')
 
         n_groups = df['group'].nunique()
